@@ -18,7 +18,11 @@ package org.coteji.core;
 import java.util.List;
 
 public interface TestsSource {
-    Test getFirst(SearchCriteria searchCriteria);
+    void readPropertyFile(String filePath);
 
-    List<Test> getAll(SearchCriteria searchCriteria);
+    Test getTest(String searchCriteria);
+
+    List<Test> getTests(String searchCriteria);
+
+    List<Test> getAllTests();
 }

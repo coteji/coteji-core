@@ -14,6 +14,7 @@
  */
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 group = "org.coteji.core"
 
@@ -28,6 +29,11 @@ repositories {
 
 dependencies {
     implementation(
-        "org.apache.commons:commons-lang3:3.8.1"
+        "org.springframework:spring-context:5.2.0.RELEASE",
+        "com.beust:jcommander:1.78"
     )
+}
+
+run {
+    mainClassName = 'org.coteji.core.Runner'
 }

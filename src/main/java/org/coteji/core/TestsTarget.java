@@ -18,6 +18,8 @@ package org.coteji.core;
 import java.util.List;
 
 public interface TestsTarget {
+    void readPropertyFile(String filePath);
+
     void push(Test test);
 
     void pushAll(List<Test> tests);
