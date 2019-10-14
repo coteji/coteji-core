@@ -56,4 +56,14 @@ public class Test {
     public void setLabels(Set<String> labels) {
         this.labels = labels;
     }
+
+    @Override
+    public String toString() {
+        return "Test{" +
+                "name='" + name + '\'' +
+                ", steps=" + steps +
+                ", attributes=" + attributes +
+                ", labels=" + labels +
+                '}';
+    }
 }

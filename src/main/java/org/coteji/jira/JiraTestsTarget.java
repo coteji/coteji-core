@@ -35,6 +35,7 @@ public class JiraTestsTarget implements TestsTarget {
 
     @Override
     public void pushAll(List<Test> tests) {
+        tests.forEach(test -> System.out.println(test.toString()));
         System.out.println("All tests pushed");
     }
 }
