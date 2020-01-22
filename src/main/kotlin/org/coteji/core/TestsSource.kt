@@ -12,18 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
+package org.coteji.core
 
-package org.coteji.core;
+import org.coteji.model.Test
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ComponentScan(basePackages = {"org.coteji.fs", "org.coteji.jira"})
-public class CotejiConfig {
-    @Bean
-    Runner runner() {
-        return new Runner();
-    }
+interface TestsSource {
+    fun readPropertyFile(filePath: String?)
+    fun getTest(searchCriteria: String?): Test?
+    fun getTests(searchCriteria: String?): List<Test?>?
+    fun getAllTests(): List<Test?>?
 }

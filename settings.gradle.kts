@@ -1,0 +1,2 @@
+rootProject.name = "coteji-core"
+

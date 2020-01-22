@@ -12,29 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
+package org.coteji.core
 
-apply plugin: 'java'
-apply plugin: 'application'
+import org.coteji.sources.JavaCodeSource
+import org.coteji.targets.JiraTarget
 
-group = "org.coteji"
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-wrapper { gradleVersion = "5.6.2" }
-
-repositories {
-    jcenter()
+fun main(args: Array<String>) {
+    Runner().run()
 }
 
-dependencies {
-    implementation(
-        "org.springframework:spring-context:5.2.0.RELEASE",
-        "com.beust:jcommander:1.78",
-        "com.github.javaparser:javaparser-core:3.14.7"
-    )
-}
+class Runner {
+    private lateinit var testsSource: TestsSource
+    private lateinit var testsTarget: TestsTarget
 
-run {
-    mainClassName = 'org.coteji.core.Runner'
+    fun run() {
+        testsSource = JavaCodeSource()
+        testsTarget = JiraTarget()
+        testsTarget.pushAll(testsSource.getAllTests())
+    }
+
 }

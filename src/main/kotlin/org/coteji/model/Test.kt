@@ -12,17 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
+package org.coteji.model
 
-package org.coteji.core;
-
-import java.util.List;
-
-public interface TestsSource {
-    void readPropertyFile(String filePath);
-
-    Test getTest(String searchCriteria);
-
-    List<Test> getTests(String searchCriteria);
-
-    List<Test> getAllTests();
-}
+data class Test(
+    val name: String,
+    val content: String = "",
+    val attributes: Map<String, Any> = hashMapOf()
+)

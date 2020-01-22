@@ -12,30 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
+package org.coteji.targets
 
-package org.coteji.jira;
+import org.coteji.model.Test
+import org.coteji.core.TestsTarget
 
-import org.coteji.core.Test;
-import org.coteji.core.TestsTarget;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-@Component
-public class JiraTestsTarget implements TestsTarget {
-    @Override
-    public void readPropertyFile(String filePath) {
-        System.out.println("Read file: " + filePath);
+class JiraTarget : TestsTarget {
+    override fun readPropertyFile(filePath: String?) {
+        println("Read file: $filePath")
     }
 
-    @Override
-    public void push(Test test) {
-        System.out.println("Test pushed");
+    override fun push(test: Test?) {
+        println("Test pushed")
     }
 
-    @Override
-    public void pushAll(List<Test> tests) {
-        tests.forEach(test -> System.out.println(test.toString()));
-        System.out.println("All tests pushed");
+    override fun pushAll(tests: List<Test?>?) {
+        tests?.forEach {
+            println(it.toString())
+        }
+        println("All tests pushed")
     }
 }

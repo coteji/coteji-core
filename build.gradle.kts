@@ -12,15 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
+plugins {
+    application
+    kotlin("jvm") version "1.3.61"
+}
 
-package org.coteji.core;
+version = "1.0.0"
+group = "io.github.coteji"
 
-import java.util.List;
+repositories {
+    jcenter()
+}
 
-public interface TestsTarget {
-    void readPropertyFile(String filePath);
-
-    void push(Test test);
-
-    void pushAll(List<Test> tests);
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("com.github.javaparser:javaparser-core:3.14.7")
 }
