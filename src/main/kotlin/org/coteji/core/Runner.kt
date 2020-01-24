@@ -14,11 +14,12 @@
  */
 package org.coteji.core
 
+import org.coteji.config.Script
 import org.coteji.sources.JavaCodeSource
 import org.coteji.targets.JiraTarget
 
 fun main(args: Array<String>) {
-    Runner().run()
+    Script().scriptBody()
 }
 
 class Runner {

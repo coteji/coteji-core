@@ -26,5 +26,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlin:kotlin-scripting-common:1.3.61")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:1.3.61")
     implementation("com.github.javaparser:javaparser-core:3.14.7")
 }
