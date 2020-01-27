@@ -14,7 +14,7 @@
  */
 package org.coteji.targets
 
-import org.coteji.model.Test
+import org.coteji.core.Test
 import org.coteji.core.TestsTarget
 
 class JiraTarget : TestsTarget {

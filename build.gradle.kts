@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 plugins {
-    application
     kotlin("jvm") version "1.3.61"
 }
 
@@ -26,7 +25,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlin:kotlin-scripting-common:1.3.61")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:1.3.61")
+    implementation(kotlin("scripting-jvm"))
+    implementation(kotlin("scripting-jvm-host-embeddable"))
+    implementation(kotlin("script-util"))
     implementation("com.github.javaparser:javaparser-core:3.14.7")
 }

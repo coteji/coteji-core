@@ -14,8 +14,6 @@
  */
 package org.coteji.core
 
-import org.coteji.model.Test
-
 interface TestsSource {
     fun readPropertyFile(filePath: String?)
     fun getTest(searchCriteria: String?): Test?

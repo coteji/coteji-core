@@ -17,12 +17,13 @@ package org.coteji.sources
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.utils.SourceRoot
-import org.coteji.model.Test
+import org.coteji.core.Test
 import org.coteji.core.TestsSource
 import java.io.File
 
-class JavaCodeSource : TestsSource {
-    private val TESTS_DIR = "D:\\Repos\\oem\\Risk-Org-Entity-System-Tests\\rcur-autotests\\tests\\cp-func-tests\\src\\test\\java\\com\\refinitiv\\qa\\tests"
+class JavaCodeSource(
+        private val testsDir: String
+) : TestsSource {
     private val TEST_METHODS = "@Test"
 
     override fun readPropertyFile(filePath: String?) {
@@ -41,7 +42,7 @@ class JavaCodeSource : TestsSource {
 
     override fun getAllTests(): List<Test?>? {
         val result = arrayListOf<Test>()
-        val packagePath = File(TESTS_DIR).toPath()
+        val packagePath = File(testsDir).toPath()
         SourceRoot(packagePath)
                 .tryToParse("")
                 .filter { it.isSuccessful }

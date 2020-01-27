@@ -14,8 +14,6 @@
  */
 package org.coteji.core
 
-import org.coteji.model.Test
-
 interface TestsTarget {
     fun readPropertyFile(filePath: String?)
     fun push(test: Test?)

@@ -14,22 +14,21 @@
  */
 package org.coteji.core
 
-import org.coteji.config.Script
-import org.coteji.sources.JavaCodeSource
-import org.coteji.targets.JiraTarget
+import java.io.File
+import kotlin.script.experimental.api.ScriptEvaluationConfiguration
+import kotlin.script.experimental.api.implicitReceivers
+import kotlin.script.experimental.host.toScriptSource
+import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
+import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
-fun main(args: Array<String>) {
-    Script().scriptBody()
-}
+fun main() {
+    val source = File("config.coteji.kts").toScriptSource()
+    val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
+    val cotejiBuilder = CotejiBuilder()
 
-class Runner {
-    private lateinit var testsSource: TestsSource
-    private lateinit var testsTarget: TestsTarget
+    BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
+        implicitReceivers(cotejiBuilder)
+    })
 
-    fun run() {
-        testsSource = JavaCodeSource()
-        testsTarget = JiraTarget()
-        testsTarget.pushAll(testsSource.getAllTests())
-    }
-
+    cotejiBuilder.build()
 }
