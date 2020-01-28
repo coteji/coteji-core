@@ -15,8 +15,10 @@
 package org.coteji.core
 
 import java.io.File
+import javax.script.ScriptException
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
 import kotlin.script.experimental.api.implicitReceivers
+import kotlin.script.experimental.api.onFailure
 import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
@@ -28,7 +30,12 @@ fun main() {
 
     BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
         implicitReceivers(cotejiBuilder)
-    })
+    }).onFailure { result ->
+        result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
+        val error = result.reports.last()
+        val location = error.location?.start
+        throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
+    }
 
     cotejiBuilder.build()
 }
