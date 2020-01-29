@@ -18,16 +18,12 @@ import org.coteji.core.Test
 import org.coteji.core.TestsTarget
 
 class JiraTarget : TestsTarget {
-    override fun readPropertyFile(filePath: String?) {
-        println("Read file: $filePath")
-    }
-
-    override fun push(test: Test?) {
+    override fun push(test: Test) {
         println("Test pushed")
     }
 
-    override fun pushAll(tests: List<Test?>?) {
-        tests?.forEach {
+    override fun pushAll(tests: List<Test>) {
+        tests.forEach {
             println(it.toString())
         }
         println("All tests pushed")

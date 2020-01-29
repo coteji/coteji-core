@@ -15,32 +15,28 @@
 package org.coteji.sources
 
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.utils.SourceRoot
 import org.coteji.core.Test
 import org.coteji.core.TestsSource
 import java.io.File
 
 class JavaCodeSource(
-        private val testsDir: String
+        private val testsDir: String,
+        private val isTest: MethodDeclaration.() -> Boolean = method { withAnnotation("Test") }
+
 ) : TestsSource {
-    private val TEST_METHODS = "@Test"
 
-    override fun readPropertyFile(filePath: String?) {
-        println("Read file: $filePath")
-    }
-
-    override fun getTest(searchCriteria: String?): Test? {
+    override fun getTest(searchCriteria: String): Test {
         println("Test retrieved with filter $searchCriteria")
-        return null
+        return Test(name = "")
     }
 
-    override fun getTests(searchCriteria: String?): List<Test?>? {
+    override fun getTests(searchCriteria: String): List<Test> {
         println("Tests retrieved with filter $searchCriteria")
-        return null
+        return emptyList()
     }
 
-    override fun getAllTests(): List<Test?>? {
+    override fun getAllTests(): List<Test> {
         val result = arrayListOf<Test>()
         val packagePath = File(testsDir).toPath()
         SourceRoot(packagePath)
@@ -57,6 +53,4 @@ class JavaCodeSource(
         return result
     }
 
-    private fun MethodDeclaration.isTest(): Boolean =
-            this.findFirst(AnnotationExpr::class.java) { it.nameAsString == "Test" }.isPresent
 }
