@@ -17,31 +17,21 @@ package io.github.coteji.tests.sources
 import io.github.coteji.core.TestsSource
 import io.github.coteji.model.Test
 
-class FakeSource(private val component: String) : TestsSource {
+class FakeSource() : TestsSource {
+    companion object {
+        val localTests = mutableListOf<Test>()
+    }
 
     override fun getTest(searchCriteria: String): Test {
-        return Test(name = "createUser", content = searchCriteria,
-                attributes = mapOf(Pair("component", "users"), Pair("type", "api")))
+        return localTests.first { it.name == searchCriteria }
     }
 
     override fun getTests(searchCriteria: String): List<Test> {
-        return listOf(
-                Test(name = "createUser", content = searchCriteria,
-                        attributes = mapOf(Pair("component", "users"), Pair("type", "api"))),
-                Test(name = "deleteUser", content = searchCriteria,
-                        attributes = mapOf(Pair("component", "users"), Pair("type", "ui")))
-        )
+        return localTests.filter { searchCriteria in it.name }
     }
 
     override fun getAllTests(): List<Test> {
-        return listOf(
-                Test(name = "createUser", content = "some content",
-                        attributes = mapOf(Pair("component", "users"), Pair("type", "api"))),
-                Test(name = "updateUser", content = "some content updated",
-                        attributes = mapOf(Pair("component", "users"), Pair("type", "ui"))),
-                Test(name = "deleteUser", content = "some content deleted",
-                        attributes = mapOf(Pair("component", "users"), Pair("type", "ui")))
-        )
+        return localTests
     }
 
 }
