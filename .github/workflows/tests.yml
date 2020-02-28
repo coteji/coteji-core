@@ -12,4 +12,4 @@ jobs:
     - name: Run tests
       run: |
         chmod +x gradlew
-        ./gradlew tests
+        ./gradlew test
