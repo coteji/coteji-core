@@ -13,23 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package io.github.coteji.tests.targets
 
-package org.coteji.core
+import io.github.coteji.model.Test
+import io.github.coteji.core.TestsTarget
 
-class CotejiBuilder {
-    lateinit var testsSource: TestsSource
-    lateinit var testsTarget: TestsTarget
-
-    fun build() {
-        testsTarget.pushAll(testsSource.getAllTests())
+class FakeTarget : TestsTarget {
+    override fun push(test: Test) {
+        println("Test pushed: $test")
     }
 
-}
-
-fun CotejiBuilder.setSource(source: TestsSource) {
-    testsSource = source
-}
-
-fun CotejiBuilder.setTarget(target: TestsTarget) {
-    testsTarget = target
+    override fun pushAll(tests: List<Test>) {
+        tests.forEach {
+            println(it.toString())
+        }
+        println("All tests pushed")
+    }
 }

@@ -13,8 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.coteji.core
 
+package io.github.coteji.tests
+
+import io.github.coteji.config.ConfigCotejiScript
+import io.github.coteji.core.CotejiBuilder
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import java.io.File
 import javax.script.ScriptException
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
@@ -24,19 +29,23 @@ import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
-fun main() {
-    val source = File("config.coteji.kts").toScriptSource()
-    val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
-    val cotejiBuilder = CotejiBuilder()
+class CotejiTest {
 
-    BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
-        implicitReceivers(cotejiBuilder)
-    }).onFailure { result ->
-        result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
-        val error = result.reports.last()
-        val location = error.location?.start
-        throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
+    @Test
+    fun simpleTest() {
+        val source = File("src/test/resources/config.coteji.kts").toScriptSource()
+        val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
+        val cotejiBuilder = CotejiBuilder()
+
+        BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
+            implicitReceivers(cotejiBuilder)
+        }).onFailure { result ->
+            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
+            val error = result.reports.last()
+            val location = error.location?.start
+            throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
+        }
+
+        cotejiBuilder.syncAll()
     }
-
-    cotejiBuilder.build()
 }

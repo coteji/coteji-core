@@ -13,10 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.coteji.core
+package io.github.coteji.core
 
-data class Test(
-    val name: String,
-    val content: String = "",
-    val attributes: Map<String, Any> = hashMapOf()
-)
+import io.github.coteji.model.Test
+
+interface TestsSource {
+    fun getTest(searchCriteria: String): Test?
+    fun getTests(searchCriteria: String): List<Test>
+    fun getAllTests(): List<Test>
+}

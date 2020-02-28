@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.coteji.core
+package io.github.coteji.config
 
 import org.jetbrains.kotlin.script.util.DependsOn
 import org.jetbrains.kotlin.script.util.Import
@@ -69,7 +69,6 @@ class AnnotationSupportScriptConfigurator : RefineScriptCompilationConfiguration
                 override val text: CharSequence? = null
             }
             resolver.resolve(scriptContents, emptyMap(), ::report, null).get()?.classpath?.toList()
-            // TODO: add diagnostics
         } catch (e: Throwable) {
             return ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics(path = context.script.locationId))
         }

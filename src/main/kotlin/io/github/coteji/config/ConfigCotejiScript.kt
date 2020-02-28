@@ -14,8 +14,9 @@
  *    limitations under the License.
  */
 
-package org.coteji.core
+package io.github.coteji.config
 
+import io.github.coteji.core.CotejiBuilder
 import org.jetbrains.kotlin.script.util.DependsOn
 import org.jetbrains.kotlin.script.util.Import
 import org.jetbrains.kotlin.script.util.Repository
@@ -38,7 +39,8 @@ object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
         {
             defaultImports(
                     "org.jetbrains.kotlin.script.util.*",
-                    "org.coteji.core.*"
+                    "io.github.coteji.core.*",
+                    "io.github.coteji.config.*"
             )
 
             implicitReceivers(CotejiBuilder::class)

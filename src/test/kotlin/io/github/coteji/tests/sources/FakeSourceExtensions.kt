@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.coteji.sources
+package io.github.coteji.tests.sources
 
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.AnnotationExpr
