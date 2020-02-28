@@ -20,15 +20,15 @@ import io.github.coteji.model.Test
 class FakeSource(private val component: String) : TestsSource {
 
     override fun getTest(searchCriteria: String): Test {
-        return Test(name = "createUser", content = "some content",
+        return Test(name = "createUser", content = searchCriteria,
                 attributes = mapOf(Pair("component", "users"), Pair("type", "api")))
     }
 
     override fun getTests(searchCriteria: String): List<Test> {
         return listOf(
-                Test(name = "createUser", content = "some content",
+                Test(name = "createUser", content = searchCriteria,
                         attributes = mapOf(Pair("component", "users"), Pair("type", "api"))),
-                Test(name = "deleteUser", content = "some content deleted",
+                Test(name = "deleteUser", content = searchCriteria,
                         attributes = mapOf(Pair("component", "users"), Pair("type", "ui")))
         )
     }

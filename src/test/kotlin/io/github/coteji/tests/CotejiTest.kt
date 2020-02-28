@@ -18,6 +18,7 @@ package io.github.coteji.tests
 
 import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.CotejiBuilder
+import io.github.coteji.tests.targets.FakeTarget
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -31,11 +32,13 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 
 class CotejiTest {
 
-    @Test
-    fun simpleTest() {
+    private lateinit var cotejiBuilder: CotejiBuilder
+
+    @BeforeAll
+    fun setUp() {
         val source = File("src/test/resources/config.coteji.kts").toScriptSource()
         val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
-        val cotejiBuilder = CotejiBuilder()
+        cotejiBuilder = CotejiBuilder()
 
         BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
             implicitReceivers(cotejiBuilder)
@@ -45,7 +48,18 @@ class CotejiTest {
             val location = error.location?.start
             throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
         }
-
-        cotejiBuilder.syncAll()
     }
+
+    @Test
+    fun syncAllTest() {
+        cotejiBuilder.syncAll()
+        assFakeTarget.remoteTests
+    }
+
+    @Test
+    fun syncTest() {
+        val searchCriteria = "search criteria"
+        cotejiBuilder.syncTest(searchCriteria)
+    }
+
 }

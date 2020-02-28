@@ -18,6 +18,6 @@ package io.github.coteji.core
 import io.github.coteji.model.Test
 
 interface TestsTarget {
-    fun push(test: Test)
-    fun pushAll(tests: List<Test>)
+    fun push(test: Test): Test
+    fun pushAll(tests: List<Test>): List<Test>
 }

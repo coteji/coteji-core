@@ -16,6 +16,8 @@
 
 package io.github.coteji.core
 
+import io.github.coteji.exceptions.TestSourceException
+
 class CotejiBuilder {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
@@ -29,7 +31,9 @@ class CotejiBuilder {
     }
 
     fun syncTest(searchCriteria: String) {
-        testsTarget.push(testsSource.getTest(searchCriteria)!!)
+        val test = testsSource.getTest(searchCriteria)
+                ?: throw TestSourceException("Test not found by criteria: '$searchCriteria'")
+        testsTarget.push(test)
     }
 
 }
