@@ -12,20 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package org.coteji.targets
+package io.github.coteji.tests.sources
 
-import org.coteji.core.Test
-import org.coteji.core.TestsTarget
+import io.github.coteji.core.TestsSource
+import io.github.coteji.model.Test
 
-class JiraTarget : TestsTarget {
-    override fun push(test: Test) {
-        println("Test pushed")
+class FakeSource() : TestsSource {
+    companion object {
+        val localTests = mutableListOf<Test>()
     }
 
-    override fun pushAll(tests: List<Test>) {
-        tests.forEach {
-            println(it.toString())
-        }
-        println("All tests pushed")
+    override fun getTest(searchCriteria: String): Test {
+        return localTests.first { it.name == searchCriteria }
     }
+
+    override fun getTests(searchCriteria: String): List<Test> {
+        return localTests.filter { searchCriteria in it.name }
+    }
+
+    override fun getAllTests(): List<Test> {
+        return localTests
+    }
+
 }

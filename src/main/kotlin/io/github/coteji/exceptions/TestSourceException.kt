@@ -13,10 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.coteji.core
 
-data class Test(
-    val name: String,
-    val content: String = "",
-    val attributes: Map<String, Any> = hashMapOf()
-)
+package io.github.coteji.exceptions
+
+class TestSourceException(message: String?) : RuntimeException(message)

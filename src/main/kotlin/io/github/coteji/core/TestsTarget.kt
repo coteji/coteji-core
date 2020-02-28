@@ -13,10 +13,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.coteji.core
+package io.github.coteji.core
 
-interface TestsSource {
-    fun getTest(searchCriteria: String): Test?
-    fun getTests(searchCriteria: String): List<Test>
-    fun getAllTests(): List<Test>
+import io.github.coteji.model.Test
+
+interface TestsTarget {
+    fun push(test: Test): Test
+    fun pushAll(tests: List<Test>): List<Test>
 }

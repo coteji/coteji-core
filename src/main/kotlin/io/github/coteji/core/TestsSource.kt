@@ -13,23 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package io.github.coteji.core
 
-package org.coteji.core
+import io.github.coteji.model.Test
 
-class CotejiBuilder {
-    lateinit var testsSource: TestsSource
-    lateinit var testsTarget: TestsTarget
-
-    fun build() {
-        testsTarget.pushAll(testsSource.getAllTests())
-    }
-
-}
-
-fun CotejiBuilder.setSource(source: TestsSource) {
-    testsSource = source
-}
-
-fun CotejiBuilder.setTarget(target: TestsTarget) {
-    testsTarget = target
+interface TestsSource {
+    fun getTest(searchCriteria: String): Test?
+    fun getTests(searchCriteria: String): List<Test>
+    fun getAllTests(): List<Test>
 }
