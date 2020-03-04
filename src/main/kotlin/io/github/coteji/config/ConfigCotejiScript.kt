@@ -16,7 +16,7 @@
 
 package io.github.coteji.config
 
-import io.github.coteji.core.CotejiBuilder
+import io.github.coteji.core.Coteji
 import org.jetbrains.kotlin.script.util.DependsOn
 import org.jetbrains.kotlin.script.util.Import
 import org.jetbrains.kotlin.script.util.Repository
@@ -43,7 +43,7 @@ object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
                     "io.github.coteji.config.*"
             )
 
-            implicitReceivers(CotejiBuilder::class)
+            implicitReceivers(Coteji::class)
 
             refineConfiguration {
                 onAnnotations(DependsOn::class, Repository::class, Import::class, handler = AnnotationSupportScriptConfigurator())

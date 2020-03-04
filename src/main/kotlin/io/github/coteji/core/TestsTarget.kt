@@ -20,4 +20,5 @@ import io.github.coteji.model.Test
 interface TestsTarget {
     fun push(test: Test): Test
     fun pushAll(tests: List<Test>): List<Test>
+    fun getAll(): List<Test>
 }

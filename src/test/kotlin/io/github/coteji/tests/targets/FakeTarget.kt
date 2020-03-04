@@ -50,4 +50,6 @@ class FakeTarget : TestsTarget {
         remoteTests.addAll(result)
         return result
     }
+
+    override fun getAll(): List<Test> = remoteTests
 }

@@ -18,12 +18,12 @@ package io.github.coteji.core
 
 import io.github.coteji.exceptions.TestSourceException
 
-class CotejiBuilder {
+class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
 
     fun syncAll() {
-        testsTarget.pushAll(testsSource.getAllTests())
+        testsTarget.pushAll(testsSource.getAll())
     }
 
     fun syncAll(searchCriteria: String) {
@@ -36,12 +36,33 @@ class CotejiBuilder {
         testsTarget.push(test)
     }
 
+    fun dryRun() {
+        val sourceTests = testsSource.getAll()
+        val targetTests = testsTarget.getAll()
+        val sourceIds = sourceTests.map { it.id }
+        val targetIds = targetTests.map { it.id }
+        val matchedIds = mutableListOf<String>()
+        sourceIds.forEach {
+            if (it != null && it in targetIds) {
+                matchedIds.add(it)
+            }
+        }
+        println("""
+            Total tests in Source: ${sourceTests.size}            
+            Total tests in Target: ${targetTests.size}
+            Tests matched (by ID): ${matchedIds.size}
+        """.trimIndent())
+    }
 }
 
-fun CotejiBuilder.setSource(source: TestsSource) {
-    testsSource = source
-}
+var Coteji.source: TestsSource
+    get() = testsSource
+    set(value) {
+        testsSource = value
+    }
 
-fun CotejiBuilder.setTarget(target: TestsTarget) {
-    testsTarget = target
-}
+var Coteji.target: TestsTarget
+    get() = testsTarget
+    set(value) {
+        testsTarget = value
+    }

@@ -17,11 +17,12 @@
 package io.github.coteji.tests
 
 import io.github.coteji.config.ConfigCotejiScript
-import io.github.coteji.core.CotejiBuilder
-import io.github.coteji.model.Test
+import io.github.coteji.core.Coteji
+import io.github.coteji.model.Test as cotejiTest
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 import javax.script.ScriptException
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
@@ -33,16 +34,16 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 
 class CotejiTest {
 
-    private lateinit var cotejiBuilder: CotejiBuilder
+    private lateinit var coteji: Coteji
 
     @BeforeEach
     fun setUp() {
         val source = File("src/test/resources/config.coteji.kts").toScriptSource()
         val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
-        cotejiBuilder = CotejiBuilder()
+        coteji = Coteji()
 
         BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
-            implicitReceivers(cotejiBuilder)
+            implicitReceivers(coteji)
         }).onFailure { result ->
             result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
             val error = result.reports.last()
@@ -51,20 +52,21 @@ class CotejiTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun syncTest() {
         // arrange
+        FakeSource.localTests.clear()
         FakeSource.localTests.add(
-                Test(name = "createUser", content = "some content",
+                cotejiTest(name = "createUser", content = "some content",
                         attributes = mapOf(Pair("component", "users"), Pair("type", "api"))))
         FakeSource.localTests.add(
-                Test(name = "updateUser", content = "some content updated",
+                cotejiTest(name = "updateUser", content = "some content updated",
                         attributes = mapOf(Pair("component", "users"), Pair("type", "ui"))))
         // act
-        cotejiBuilder.syncTest("createUser")
+        coteji.syncTest("createUser")
         // assert
         assert(FakeTarget.remoteTests.size == 1)
-        assert(FakeTarget.remoteTests[0] == Test(
+        assert(FakeTarget.remoteTests[0] == cotejiTest(
                 name = "createUser", content = "some content",
                 attributes = mapOf(Pair("component", "users"), Pair("type", "api"))))
     }

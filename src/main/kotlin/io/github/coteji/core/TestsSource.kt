@@ -20,5 +20,5 @@ import io.github.coteji.model.Test
 interface TestsSource {
     fun getTest(searchCriteria: String): Test?
     fun getTests(searchCriteria: String): List<Test>
-    fun getAllTests(): List<Test>
+    fun getAll(): List<Test>
 }

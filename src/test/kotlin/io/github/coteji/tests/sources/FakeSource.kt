@@ -30,7 +30,7 @@ class FakeSource() : TestsSource {
         return localTests.filter { searchCriteria in it.name }
     }
 
-    override fun getAllTests(): List<Test> {
+    override fun getAll(): List<Test> {
         return localTests
     }
 
