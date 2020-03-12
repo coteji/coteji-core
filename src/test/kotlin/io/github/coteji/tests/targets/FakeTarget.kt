@@ -37,17 +37,67 @@ class FakeTarget : TestsTarget {
         return remoteTest
     }
 
-    override fun pushAll(tests: List<Test>): List<Test> {
-        remoteTests.clear()
-        val result = mutableListOf<Test>()
-        tests.forEach {
-            result.add(Test(
-                    id = it.id ?: "COT-${Random.nextInt(10000)}",
-                    name = it.name,
-                    content = it.content,
-                    attributes = it.attributes))
+    override fun pushAll(tests: List<Test>, force: Boolean): List<Test> {
+        if (force) {
+            remoteTests.clear()
+            tests.forEach {
+                remoteTests.add(Test(
+                        id = it.id ?: "COT-${Random.nextInt(10000)}",
+                        name = it.name,
+                        content = it.content,
+                        attributes = it.attributes))
+            }
+        } else {
+            val idsInSource = tests.filter { it.id != null }.map { it.id }
+            if (idsInSource.isNotEmpty()) {
+                remoteTests.removeIf { it.id !in idsInSource }
+            }
+            val idsInTarget = remoteTests.map { it.id }
+            tests.forEach {
+                if (it.id == null || it.id !in idsInTarget) {
+                    remoteTests.add(Test(
+                            id = it.id ?: "COT-${Random.nextInt(10000)}",
+                            name = it.name,
+                            content = it.content,
+                            attributes = it.attributes))
+                }
+            }
         }
-        remoteTests.addAll(result)
+        return remoteTests
+    }
+
+
+    override fun pushOnly(tests: List<Test>, force: Boolean): List<Test> {
+        val result = mutableListOf<Test>()
+        if (force) {
+            val idsInSource = tests.filter { it.id != null }.map { it.id }
+            tests.forEach {
+                result.add(Test(
+                        id = it.id ?: "COT-${Random.nextInt(10000)}",
+                        name = it.name,
+                        content = it.content,
+                        attributes = it.attributes))
+            }
+            if (idsInSource.isNotEmpty()) {
+                remoteTests.removeIf { it.id in idsInSource }
+            }
+            remoteTests.addAll(result)
+        } else {
+            val idsInTarget = remoteTests.map { it.id }
+            tests.forEach {
+                if (it.id == null || it.id !in idsInTarget) {
+                    val test = Test(
+                            id = it.id ?: "COT-${Random.nextInt(10000)}",
+                            name = it.name,
+                            content = it.content,
+                            attributes = it.attributes)
+                    result.add(test)
+                    remoteTests.add(test)
+                } else {
+                    result.add(remoteTests.first { t -> t.id == it.id})
+                }
+            }
+        }
         return result
     }
 

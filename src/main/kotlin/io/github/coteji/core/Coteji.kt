@@ -22,12 +22,12 @@ class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
 
-    fun syncAll() {
-        testsTarget.pushAll(testsSource.getAll())
+    fun syncAll(force: Boolean = false) {
+        testsTarget.pushAll(testsSource.getAll(), force)
     }
 
-    fun syncAll(searchCriteria: String) {
-        testsTarget.pushAll(testsSource.getTests(searchCriteria))
+    fun syncOnly(searchCriteria: String, force: Boolean = false) {
+        testsTarget.pushOnly(testsSource.getTests(searchCriteria), force)
     }
 
     fun syncTest(searchCriteria: String) {

@@ -19,6 +19,7 @@ import io.github.coteji.model.Test
 
 interface TestsTarget {
     fun push(test: Test): Test
-    fun pushAll(tests: List<Test>): List<Test>
+    fun pushAll(tests: List<Test>, force: Boolean): List<Test>
+    fun pushOnly(tests: List<Test>, force: Boolean): List<Test>
     fun getAll(): List<Test>
 }
