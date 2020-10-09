@@ -15,22 +15,22 @@
 package io.github.coteji.tests.sources
 
 import io.github.coteji.core.TestsSource
-import io.github.coteji.model.Test
+import io.github.coteji.model.CotejiTest
 
 class FakeSource() : TestsSource {
     companion object {
-        val localTests = mutableListOf<Test>()
+        val localTests = mutableListOf<CotejiTest>()
     }
 
-    override fun getTest(searchCriteria: String): Test {
+    override fun getTest(searchCriteria: String): CotejiTest {
         return localTests.first { it.name == searchCriteria }
     }
 
-    override fun getTests(searchCriteria: String): List<Test> {
+    override fun getTests(searchCriteria: String): List<CotejiTest> {
         return localTests.filter { searchCriteria in it.name }
     }
 
-    override fun getAll(): List<Test> {
+    override fun getAll(): List<CotejiTest> {
         return localTests
     }
 

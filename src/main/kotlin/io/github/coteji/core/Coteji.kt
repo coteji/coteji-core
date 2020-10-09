@@ -22,14 +22,26 @@ class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
 
+    /**
+     * Pushes all the tests found in the Source, to the Target.
+     * Deletes all the tests in the Target that are not present in the Source (match by id).
+     * If force is false, tests that are already in the Target (by id) are not updated.
+     */
     fun syncAll(force: Boolean = false) {
         testsTarget.pushAll(testsSource.getAll(), force)
     }
 
+    /**
+     * Pushes selected by searchCriteria tests in the Source, to the Target.
+     * If force is false, tests that are already in the Target (by id) are not updated.
+     */
     fun syncOnly(searchCriteria: String, force: Boolean = false) {
         testsTarget.pushOnly(testsSource.getTests(searchCriteria), force)
     }
 
+    /**
+     * Finds 1 test in the Source by searchCriteria and pushes it to the Target. Replaces if there is a match by id.
+     */
     fun syncTest(searchCriteria: String) {
         val test = testsSource.getTest(searchCriteria)
                 ?: throw TestSourceException("Test not found by criteria: '$searchCriteria'")

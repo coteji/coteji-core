@@ -15,10 +15,10 @@
  */
 package io.github.coteji.core
 
-import io.github.coteji.model.Test
+import io.github.coteji.model.CotejiTest
 
 interface TestsSource {
-    fun getTest(searchCriteria: String): Test?
-    fun getTests(searchCriteria: String): List<Test>
-    fun getAll(): List<Test>
+    fun getTest(searchCriteria: String): CotejiTest?
+    fun getTests(searchCriteria: String): List<CotejiTest>
+    fun getAll(): List<CotejiTest>
 }

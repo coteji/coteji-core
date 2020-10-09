@@ -16,19 +16,19 @@
 package io.github.coteji.tests.targets
 
 import io.github.coteji.core.TestsTarget
-import io.github.coteji.model.Test
+import io.github.coteji.model.CotejiTest
 import kotlin.random.Random
 
 class FakeTarget : TestsTarget {
     companion object {
-        val remoteTests = mutableListOf<Test>()
+        val remoteTests = mutableListOf<CotejiTest>()
     }
 
-    override fun push(test: Test): Test {
+    override fun push(test: CotejiTest): CotejiTest {
         if (test.id != null) {
             remoteTests.removeIf { it.id == test.id }
         }
-        val remoteTest = Test(
+        val remoteTest = CotejiTest(
                 id = test.id ?: "COT-${Random.nextInt(10000)}",
                 name = test.name,
                 content = test.content,
@@ -37,11 +37,11 @@ class FakeTarget : TestsTarget {
         return remoteTest
     }
 
-    override fun pushAll(tests: List<Test>, force: Boolean): List<Test> {
+    override fun pushAll(tests: List<CotejiTest>, force: Boolean): List<CotejiTest> {
         if (force) {
             remoteTests.clear()
             tests.forEach {
-                remoteTests.add(Test(
+                remoteTests.add(CotejiTest(
                         id = it.id ?: "COT-${Random.nextInt(10000)}",
                         name = it.name,
                         content = it.content,
@@ -55,7 +55,7 @@ class FakeTarget : TestsTarget {
             val idsInTarget = remoteTests.map { it.id }
             tests.forEach {
                 if (it.id == null || it.id !in idsInTarget) {
-                    remoteTests.add(Test(
+                    remoteTests.add(CotejiTest(
                             id = it.id ?: "COT-${Random.nextInt(10000)}",
                             name = it.name,
                             content = it.content,
@@ -67,12 +67,12 @@ class FakeTarget : TestsTarget {
     }
 
 
-    override fun pushOnly(tests: List<Test>, force: Boolean): List<Test> {
-        val result = mutableListOf<Test>()
+    override fun pushOnly(tests: List<CotejiTest>, force: Boolean): List<CotejiTest> {
+        val result = mutableListOf<CotejiTest>()
         if (force) {
             val idsInSource = tests.filter { it.id != null }.map { it.id }
             tests.forEach {
-                result.add(Test(
+                result.add(CotejiTest(
                         id = it.id ?: "COT-${Random.nextInt(10000)}",
                         name = it.name,
                         content = it.content,
@@ -86,7 +86,7 @@ class FakeTarget : TestsTarget {
             val idsInTarget = remoteTests.map { it.id }
             tests.forEach {
                 if (it.id == null || it.id !in idsInTarget) {
-                    val test = Test(
+                    val test = CotejiTest(
                             id = it.id ?: "COT-${Random.nextInt(10000)}",
                             name = it.name,
                             content = it.content,
@@ -101,5 +101,5 @@ class FakeTarget : TestsTarget {
         return result
     }
 
-    override fun getAll(): List<Test> = remoteTests
+    override fun getAll(): List<CotejiTest> = remoteTests
 }

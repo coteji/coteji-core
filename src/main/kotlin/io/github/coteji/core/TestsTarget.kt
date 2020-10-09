@@ -15,11 +15,11 @@
  */
 package io.github.coteji.core
 
-import io.github.coteji.model.Test
+import io.github.coteji.model.CotejiTest
 
 interface TestsTarget {
-    fun push(test: Test): Test
-    fun pushAll(tests: List<Test>, force: Boolean): List<Test>
-    fun pushOnly(tests: List<Test>, force: Boolean): List<Test>
-    fun getAll(): List<Test>
+    fun push(test: CotejiTest): CotejiTest
+    fun pushAll(tests: List<CotejiTest>, force: Boolean): List<CotejiTest>
+    fun pushOnly(tests: List<CotejiTest>, force: Boolean): List<CotejiTest>
+    fun getAll(): List<CotejiTest>
 }

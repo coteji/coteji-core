@@ -15,7 +15,7 @@
  */
 package io.github.coteji.model
 
-data class Test(
+data class CotejiTest(
         val id: String? = null,
         val name: String,
         val content: String = "",
