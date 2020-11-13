@@ -22,16 +22,18 @@ class FakeSource() : TestsSource {
         val localTests = mutableListOf<CotejiTest>()
     }
 
-    override fun getTest(searchCriteria: String): CotejiTest {
-        return localTests.first { it.name == searchCriteria }
-    }
-
     override fun getTests(searchCriteria: String): List<CotejiTest> {
         return localTests.filter { searchCriteria in it.name }
     }
 
     override fun getAll(): List<CotejiTest> {
         return localTests
+    }
+
+    override fun updateIdentifiers(tests: List<CotejiTest>) {
+        localTests.replaceAll { currentTest ->
+            tests.find { it.name == currentTest.name && it.content == currentTest.content } ?: currentTest
+        }
     }
 
 }

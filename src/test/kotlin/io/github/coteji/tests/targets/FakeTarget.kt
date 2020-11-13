@@ -17,6 +17,7 @@ package io.github.coteji.tests.targets
 
 import io.github.coteji.core.TestsTarget
 import io.github.coteji.model.CotejiTest
+import io.github.coteji.model.Result
 import kotlin.random.Random
 
 class FakeTarget : TestsTarget {
@@ -24,82 +25,86 @@ class FakeTarget : TestsTarget {
         val remoteTests = mutableListOf<CotejiTest>()
     }
 
-    override fun push(test: CotejiTest): CotejiTest {
-        if (test.id != null) {
-            remoteTests.removeIf { it.id == test.id }
+    override fun pushAll(tests: List<CotejiTest>, force: Boolean): Result {
+        val result = Result()
+        val idsInSource = tests.filter { it.id != null }.map { it.id }
+        if (idsInSource.isNotEmpty()) {
+            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource })
+            remoteTests.removeIf { it.id !in idsInSource }
         }
-        val remoteTest = CotejiTest(
-                id = test.id ?: "COT-${Random.nextInt(10000)}",
-                name = test.name,
-                content = test.content,
-                attributes = test.attributes)
-        remoteTests.add(test)
-        return remoteTest
-    }
-
-    override fun pushAll(tests: List<CotejiTest>, force: Boolean): List<CotejiTest> {
-        if (force) {
-            remoteTests.clear()
-            tests.forEach {
-                remoteTests.add(CotejiTest(
-                        id = it.id ?: "COT-${Random.nextInt(10000)}",
+        val idsInTarget = remoteTests.map { it.id }
+        tests.forEach {
+            if (it.id == null || it.id !in idsInTarget) {
+                val newTest = CotejiTest(
+                        id = "COT-${Random.nextInt(10000)}",
                         name = it.name,
                         content = it.content,
-                        attributes = it.attributes))
-            }
-        } else {
-            val idsInSource = tests.filter { it.id != null }.map { it.id }
-            if (idsInSource.isNotEmpty()) {
-                remoteTests.removeIf { it.id !in idsInSource }
-            }
-            val idsInTarget = remoteTests.map { it.id }
-            tests.forEach {
-                if (it.id == null || it.id !in idsInTarget) {
-                    remoteTests.add(CotejiTest(
-                            id = it.id ?: "COT-${Random.nextInt(10000)}",
-                            name = it.name,
-                            content = it.content,
-                            attributes = it.attributes))
-                }
-            }
-        }
-        return remoteTests
-    }
-
-
-    override fun pushOnly(tests: List<CotejiTest>, force: Boolean): List<CotejiTest> {
-        val result = mutableListOf<CotejiTest>()
-        if (force) {
-            val idsInSource = tests.filter { it.id != null }.map { it.id }
-            tests.forEach {
-                result.add(CotejiTest(
-                        id = it.id ?: "COT-${Random.nextInt(10000)}",
-                        name = it.name,
-                        content = it.content,
-                        attributes = it.attributes))
-            }
-            if (idsInSource.isNotEmpty()) {
-                remoteTests.removeIf { it.id in idsInSource }
-            }
-            remoteTests.addAll(result)
-        } else {
-            val idsInTarget = remoteTests.map { it.id }
-            tests.forEach {
-                if (it.id == null || it.id !in idsInTarget) {
-                    val test = CotejiTest(
-                            id = it.id ?: "COT-${Random.nextInt(10000)}",
-                            name = it.name,
-                            content = it.content,
-                            attributes = it.attributes)
-                    result.add(test)
-                    remoteTests.add(test)
+                        attributes = it.attributes)
+                remoteTests.add(newTest)
+                result.testsAdded.add(newTest)
+            } else {
+                if (force) {
+                    val index = remoteTests.indexOfFirst { targetTest -> targetTest.id == it.id }
+                    remoteTests.removeAt(index)
+                    remoteTests.add(index, it)
+                    result.testsUpdated.add(it)
                 } else {
-                    result.add(remoteTests.first { t -> t.id == it.id})
+                    result.testsAlreadyUpToDate.add(it)
                 }
             }
         }
         return result
     }
 
-    override fun getAll(): List<CotejiTest> = remoteTests
+    override fun pushOnly(tests: List<CotejiTest>, force: Boolean): Result {
+        val result = Result()
+        val idsInTarget = remoteTests.map { it.id }
+        tests.forEach {
+            if (it.id == null || it.id !in idsInTarget) {
+                val newTest = CotejiTest(
+                        id = "COT-${Random.nextInt(10000)}",
+                        name = it.name,
+                        content = it.content,
+                        attributes = it.attributes)
+                remoteTests.add(newTest)
+                result.testsAdded.add(newTest)
+            } else {
+                if (force) {
+                    val index = remoteTests.indexOfFirst { targetTest -> targetTest.id == it.id }
+                    remoteTests.removeAt(index)
+                    remoteTests.add(index, it)
+                    result.testsUpdated.add(it)
+                } else {
+                    result.testsAlreadyUpToDate.add(it)
+                }
+            }
+        }
+        return result
+    }
+
+    override fun dryRun(tests: List<CotejiTest>, force: Boolean): Result {
+        val result = Result()
+        val idsInSource = tests.filter { it.id != null }.map { it.id }
+        if (idsInSource.isNotEmpty()) {
+            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource })
+        }
+        val idsInTarget = remoteTests.map { it.id }
+        tests.forEach {
+            if (it.id == null || it.id !in idsInTarget) {
+                val newTest = CotejiTest(
+                        id = "COT-${Random.nextInt(10000)}",
+                        name = it.name,
+                        content = it.content,
+                        attributes = it.attributes)
+                result.testsAdded.add(newTest)
+            } else {
+                if (force) {
+                    result.testsUpdated.add(it)
+                } else {
+                    result.testsAlreadyUpToDate.add(it)
+                }
+            }
+        }
+        return result
+    }
 }

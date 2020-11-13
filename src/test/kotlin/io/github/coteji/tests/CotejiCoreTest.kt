@@ -67,10 +67,14 @@ class CotejiCoreTest {
         FakeSource.localTests.addAll(listOf(createUserTest, updateUserTest))
         FakeTarget.remoteTests.clear()
         // act
-        coteji.syncTest(createUserTest.name)
+        coteji.syncOnly(createUserTest.name, true)
         // assert
         assert(FakeTarget.remoteTests.size == 1)
-        assert(FakeTarget.remoteTests[0] == createUserTest)
+        val newTest = FakeTarget.remoteTests[0]
+        assert(newTest.id != null)
+        assert(newTest.name == createUserTest.name)
+        assert(newTest.content == createUserTest.content)
+        assert(newTest.attributes == createUserTest.attributes)
     }
 
     @Test
@@ -82,7 +86,7 @@ class CotejiCoreTest {
         FakeTarget.remoteTests.clear()
         FakeTarget.remoteTests.addAll(listOf(createUserTestWithId, updateUserTestWithId))
         // act
-        coteji.syncTest(createUserTest.name)
+        coteji.syncOnly(createUserTest.name, true)
         // assert
         assert(FakeTarget.remoteTests.size == 2)
         assert(FakeTarget.remoteTests.contains(createUserTestChanged))

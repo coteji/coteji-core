@@ -16,8 +16,6 @@
 
 package io.github.coteji.core
 
-import io.github.coteji.exceptions.TestSourceException
-
 class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
@@ -40,30 +38,26 @@ class Coteji {
     }
 
     /**
-     * Finds 1 test in the Source by searchCriteria and pushes it to the Target. Replaces if there is a match by id.
+     * Finds all tests in the Source without IDs and pushes them to the Target.
      */
-    fun syncTest(searchCriteria: String) {
-        val test = testsSource.getTest(searchCriteria)
-                ?: throw TestSourceException("Test not found by criteria: '$searchCriteria'")
-        testsTarget.push(test)
+    fun pushNew() {
+        testsTarget.pushOnly(testsSource.getAll().filter { it.id == null }, true)
     }
 
-    fun dryRun() {
-        val sourceTests = testsSource.getAll()
-        val targetTests = testsTarget.getAll()
-        val sourceIds = sourceTests.map { it.id }
-        val targetIds = targetTests.map { it.id }
-        val matchedIds = mutableListOf<String>()
-        sourceIds.forEach {
-            if (it != null && it in targetIds) {
-                matchedIds.add(it)
-            }
-        }
-        println("""
-            Total tests in Source: ${sourceTests.size}            
-            Total tests in Target: ${targetTests.size}
-            Tests matched (by ID): ${matchedIds.size}
-        """.trimIndent())
+    /**
+     * Emulates the result of syncAll action without actually doing anything, just logs the results to the console.
+     */
+    fun dryRun(force: Boolean = false) {
+        testsTarget.dryRun(testsSource.getAll(), force)
+    }
+
+
+    /**
+     * Prints out the tests found by searchCriteria.
+     */
+    fun testSearchCriteria(searchCriteria: String) {
+        println("Found tests:")
+        testsSource.getTests(searchCriteria).forEach { println(it) }
     }
 }
 

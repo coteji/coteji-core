@@ -13,12 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package io.github.coteji.core
+package io.github.coteji.model
 
-import io.github.coteji.model.CotejiTest
-
-interface TestsSource {
-    fun getTests(searchCriteria: String): List<CotejiTest>
-    fun getAll(): List<CotejiTest>
-    fun updateIdentifiers(tests: List<CotejiTest>)
+class Result() {
+    val testsAdded: MutableList<CotejiTest> = mutableListOf()
+    val testsUpdated: MutableList<CotejiTest> = mutableListOf()
+    val testsAlreadyUpToDate: MutableList<CotejiTest> = mutableListOf()
+    val testsDeleted: MutableList<CotejiTest> = mutableListOf()
+    val testsSyncFailed: MutableMap<CotejiTest, String> = mutableMapOf()
 }

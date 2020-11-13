@@ -15,10 +15,6 @@
  */
 package io.github.coteji.core
 
-import io.github.coteji.model.CotejiTest
-
-interface TestsSource {
-    fun getTests(searchCriteria: String): List<CotejiTest>
-    fun getAll(): List<CotejiTest>
-    fun updateIdentifiers(tests: List<CotejiTest>)
+enum class IdUpdateMode {
+    UPDATE, WARNING, ERROR
 }
