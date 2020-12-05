@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.3.72"
 }
 
-version = "1.0.0"
+version = "0.1.0"
 group = "io.github.coteji"
 
 repositories {

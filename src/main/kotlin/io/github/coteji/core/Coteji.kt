@@ -25,30 +25,42 @@ class Coteji {
      * Deletes all the tests in the Target that are not present in the Source (match by id).
      * If force is false, tests that are already in the Target (by id) are not updated.
      */
-    fun syncAll(force: Boolean = false) {
-        testsTarget.pushAll(testsSource.getAll(), force)
+    fun syncAll(force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
+        val tests = testsSource.getAll()
+        val result = testsTarget.pushAll(tests, force)
+        testsSource.updateIdentifiers(result.testsAdded)
+        result.print()
     }
 
     /**
      * Pushes selected by searchCriteria tests in the Source, to the Target.
      * If force is false, tests that are already in the Target (by id) are not updated.
      */
-    fun syncOnly(searchCriteria: String, force: Boolean = false) {
-        testsTarget.pushOnly(testsSource.getTests(searchCriteria), force)
+    fun syncOnly(searchCriteria: String, force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
+        val tests = testsSource.getTests(searchCriteria)
+        val result = testsTarget.pushOnly(tests, force)
+        testsSource.updateIdentifiers(result.testsAdded)
+        result.print()
     }
 
     /**
      * Finds all tests in the Source without IDs and pushes them to the Target.
      */
     fun pushNew() {
-        testsTarget.pushOnly(testsSource.getAll().filter { it.id == null }, true)
+        val result = testsTarget.pushOnly(testsSource.getAll().filter { it.id == null }, true)
+        testsSource.updateIdentifiers(result.testsAdded)
+        result.print()
     }
 
     /**
      * Emulates the result of syncAll action without actually doing anything, just logs the results to the console.
      */
     fun dryRun(force: Boolean = false) {
-        testsTarget.dryRun(testsSource.getAll(), force)
+        val tests = testsSource.getAll()
+        println("Tests found:")
+        println(tests.joinToString("\n\n"))
+        val result = testsTarget.dryRun(tests, force)
+        result.print()
     }
 
 
@@ -56,8 +68,10 @@ class Coteji {
      * Prints out the tests found by searchCriteria.
      */
     fun testSearchCriteria(searchCriteria: String) {
+        val tests = testsSource.getTests(searchCriteria)
         println("Found tests:")
-        testsSource.getTests(searchCriteria).forEach { println(it) }
+        tests.forEach { println(it) }
+        println("Total: ${tests.size}")
     }
 }
 
