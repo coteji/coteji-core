@@ -20,4 +20,12 @@ data class CotejiTest(
         val name: String,
         val content: String = "",
         val attributes: Map<String, Any> = hashMapOf()
-)
+) {
+    override fun toString(): String {
+        var result =  "\nName: $name\nID: ${id ?: "no ID"}\nContent:"
+        content.lines().forEach { result += "\n\t$it" }
+        result += "\nAttributes:"
+        attributes.entries.forEach { result += "\n\t${it.key} = ${it.value}" }
+        return result
+    }
+}
