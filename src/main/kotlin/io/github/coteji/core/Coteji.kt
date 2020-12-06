@@ -16,6 +16,9 @@
 
 package io.github.coteji.core
 
+import io.github.coteji.exceptions.TestSourceException
+import io.github.coteji.model.CotejiTest
+
 class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
@@ -27,6 +30,17 @@ class Coteji {
      */
     fun syncAll(force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
         val tests = testsSource.getAll()
+        printSourceTestsStats(tests)
+        val testsWithoutId = tests.filter { it.id == null }
+        if (testsWithoutId.isNotEmpty()) {
+            if (idUpdateMode == IdUpdateMode.ERROR) {
+                printTestsWithoutId("ERROR", testsWithoutId)
+                throw TestSourceException("There were tests without ID. See the list above.")
+            }
+            if (idUpdateMode == IdUpdateMode.WARNING) {
+                printTestsWithoutId("WARNING", testsWithoutId)
+            }
+        }
         val result = testsTarget.pushAll(tests, force)
         testsSource.updateIdentifiers(result.testsAdded)
         result.print()
@@ -38,6 +52,17 @@ class Coteji {
      */
     fun syncOnly(searchCriteria: String, force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
         val tests = testsSource.getTests(searchCriteria)
+        printSourceTestsStats(tests)
+        val testsWithoutId = tests.filter { it.id == null }
+        if (testsWithoutId.isNotEmpty()) {
+            if (idUpdateMode == IdUpdateMode.ERROR) {
+                printTestsWithoutId("ERROR", testsWithoutId)
+                throw TestSourceException("There were tests without ID. See the list above.")
+            }
+            if (idUpdateMode == IdUpdateMode.WARNING) {
+                printTestsWithoutId("WARNING", testsWithoutId)
+            }
+        }
         val result = testsTarget.pushOnly(tests, force)
         testsSource.updateIdentifiers(result.testsAdded)
         result.print()
@@ -47,7 +72,9 @@ class Coteji {
      * Finds all tests in the Source without IDs and pushes them to the Target.
      */
     fun pushNew() {
-        val result = testsTarget.pushOnly(testsSource.getAll().filter { it.id == null }, true)
+        val tests = testsSource.getAll().filter { it.id == null }
+        printSourceTestsStats(tests)
+        val result = testsTarget.pushOnly(tests, true)
         testsSource.updateIdentifiers(result.testsAdded)
         result.print()
     }
@@ -57,8 +84,7 @@ class Coteji {
      */
     fun dryRun(force: Boolean = false) {
         val tests = testsSource.getAll()
-        println("Tests found:")
-        println(tests.joinToString("\n\n"))
+        printSourceTestsStats(tests)
         val result = testsTarget.dryRun(tests, force)
         result.print()
     }
@@ -67,11 +93,21 @@ class Coteji {
     /**
      * Prints out the tests found by searchCriteria.
      */
-    fun testSearchCriteria(searchCriteria: String) {
+    fun trySearchCriteria(searchCriteria: String) {
         val tests = testsSource.getTests(searchCriteria)
         println("Found tests:")
         tests.forEach { println(it) }
         println("Total: ${tests.size}")
+    }
+
+    private fun printSourceTestsStats(tests: List<CotejiTest>) {
+        val testsWithIdCount = tests.filter { it.id != null }.size
+        println("Tests found: ${tests.size}; with ID: ${testsWithIdCount}; without ID: ${tests.size - testsWithIdCount}")
+    }
+
+    private fun printTestsWithoutId(level: String, tests: List<CotejiTest>) {
+        println("$level: This tests' IDs are missing:")
+        tests.forEach { println(it) }
     }
 }
 
