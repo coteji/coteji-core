@@ -16,6 +16,7 @@ dependencies {
     implementation(kotlin("script-util"))
     implementation("com.github.javaparser:javaparser-core:3.14.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation("org.assertj:assertj-core:3.18.1")
 }
 
 tasks.test {

@@ -33,13 +33,15 @@ class FakeTarget : TestsTarget {
             remoteTests.removeIf { it.id !in idsInSource }
         }
         val idsInTarget = remoteTests.map { it.id }
+        var nextId = 100
         tests.forEach {
             if (it.id == null || it.id !in idsInTarget) {
                 val newTest = CotejiTest(
-                        id = "COT-${Random.nextInt(10000)}",
+                        id = "$nextId",
                         name = it.name,
                         content = it.content,
                         attributes = it.attributes)
+                nextId++
                 remoteTests.add(newTest)
                 result.testsAdded.add(newTest)
             } else {
@@ -59,13 +61,15 @@ class FakeTarget : TestsTarget {
     override fun pushOnly(tests: List<CotejiTest>, force: Boolean): Result {
         val result = Result()
         val idsInTarget = remoteTests.map { it.id }
+        var nextId = 100
         tests.forEach {
             if (it.id == null || it.id !in idsInTarget) {
                 val newTest = CotejiTest(
-                        id = "COT-${Random.nextInt(10000)}",
+                        id = "$nextId",
                         name = it.name,
                         content = it.content,
                         attributes = it.attributes)
+                nextId++
                 remoteTests.add(newTest)
                 result.testsAdded.add(newTest)
             } else {
