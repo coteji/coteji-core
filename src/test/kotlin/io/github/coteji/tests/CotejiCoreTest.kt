@@ -21,6 +21,7 @@ import io.github.coteji.core.Coteji
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -35,14 +36,35 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 class CotejiCoreTest {
 
     private lateinit var coteji: Coteji
-    private val createUserTest: CotejiTest = CotejiTest(name = "createUser", content = "some content",
-            attributes = mapOf(Pair("component", "users"), Pair("type", "api")))
-    private val updateUserTest: CotejiTest = CotejiTest(name = "updateUser", content = "some content updated",
-            attributes = mapOf(Pair("component", "users"), Pair("type", "ui")))
-    private val createUserTestWithId: CotejiTest = CotejiTest(id = "1", name = "createUser", content = "some content",
-            attributes = mapOf(Pair("component", "users"), Pair("type", "api")))
-    private val updateUserTestWithId: CotejiTest = CotejiTest(id = "2", name = "updateUser", content = "some content updated",
-            attributes = mapOf(Pair("component", "users"), Pair("type", "ui")))
+    private val sourceTestWithoutId: CotejiTest = CotejiTest(
+        name = "createUser",
+        content = "some content",
+        attributes = mapOf(Pair("component", "users"), Pair("type", "api"))
+    )
+    private val sourceTestWithIdZero: CotejiTest = CotejiTest(
+        id = "0",
+        name = "updateUser",
+        content = "some content updated",
+        attributes = mapOf(Pair("component", "users"), Pair("type", "ui"))
+    )
+    private val sourceTestWithIdOne: CotejiTest = CotejiTest(
+        id = "1",
+        name = "createConfig",
+        content = "some config",
+        attributes = mapOf(Pair("component", "config"), Pair("type", "ui"))
+    )
+    private val targetTestWithIdOne: CotejiTest = CotejiTest(
+        id = "1",
+        name = "createConfig",
+        content = "some config old",
+        attributes = mapOf(Pair("component", "config"))
+    )
+    private val targetTestWithIdTwo: CotejiTest = CotejiTest(
+        id = "2",
+        name = "updateConfig",
+        content = "some update config",
+        attributes = mapOf(Pair("component", "config"), Pair("type", "unit"))
+    )
 
     @BeforeEach
     fun setUp() {
@@ -58,38 +80,69 @@ class CotejiCoreTest {
             val location = error.location?.start
             throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
         }
+        FakeSource.localTests.clear()
+        FakeSource.localTests.addAll(listOf(sourceTestWithoutId, sourceTestWithIdZero, sourceTestWithIdOne))
+        FakeTarget.remoteTests.clear()
+        FakeTarget.remoteTests.addAll(listOf(targetTestWithIdOne, targetTestWithIdTwo))
     }
 
     @Test
-    fun syncTestNew() {
-        // arrange
-        FakeSource.localTests.clear()
-        FakeSource.localTests.addAll(listOf(createUserTest, updateUserTest))
-        FakeTarget.remoteTests.clear()
-        // act
-        coteji.syncOnly(createUserTest.name, true)
-        // assert
-        assert(FakeTarget.remoteTests.size == 1)
-        val newTest = FakeTarget.remoteTests[0]
-        assert(newTest.id != null)
-        assert(newTest.name == createUserTest.name)
-        assert(newTest.content == createUserTest.content)
-        assert(newTest.attributes == createUserTest.attributes)
+    fun syncAllForce() {
+        coteji.syncAll(true)
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne
+        )
     }
 
     @Test
-    fun syncTestExisting() {
-        // arrange
-        FakeSource.localTests.clear()
-        val createUserTestChanged = createUserTestWithId.copy(content = "new content")
-        FakeSource.localTests.addAll(listOf(createUserTestChanged, updateUserTestWithId))
-        FakeTarget.remoteTests.clear()
-        FakeTarget.remoteTests.addAll(listOf(createUserTestWithId, updateUserTestWithId))
-        // act
-        coteji.syncOnly(createUserTest.name, true)
-        // assert
-        assert(FakeTarget.remoteTests.size == 2)
-        assert(FakeTarget.remoteTests.contains(createUserTestChanged))
+    fun syncAllNotForce() {
+        coteji.syncAll()
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            targetTestWithIdOne
+        )
+    }
+    @Test
+    fun syncOnlyForce() {
+        coteji.syncOnly("a", true)
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne,
+            targetTestWithIdTwo
+        )
     }
 
+    @Test
+    fun syncOnlyNotForce() {
+        coteji.syncOnly("a")
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+    }
+
+    @Test
+    fun pushNew() {
+        coteji.pushNew()
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+    }
+
+    @Test
+    fun dryRun() {
+        coteji.dryRun()
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+    }
 }
