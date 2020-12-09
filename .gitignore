@@ -47,4 +47,3 @@ out/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
-/gradle.properties
