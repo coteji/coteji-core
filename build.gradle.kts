@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "1.3.72"
+    id("com.vanniktech.maven.publish") version "0.13.0"
+    id("org.jetbrains.dokka") version "0.10.1"
 }
 
 version = "0.1.0"
