@@ -1,5 +1,5 @@
 /*
- *    Copyright (c) 2020 Coteji AUTHORS.
+ *    Copyright (c) 2020 - 2021 Coteji AUTHORS.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,43 +17,58 @@
 package io.github.coteji.config
 
 import io.github.coteji.core.Coteji
-import org.jetbrains.kotlin.script.util.DependsOn
-import org.jetbrains.kotlin.script.util.Import
-import org.jetbrains.kotlin.script.util.Repository
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
+import kotlin.script.experimental.dependencies.DependsOn
+import kotlin.script.experimental.dependencies.Repository
 import kotlin.script.experimental.jvm.dependenciesFromClassloader
 import kotlin.script.experimental.jvm.jvm
+import kotlin.script.experimental.jvm.mainArguments
 
 @KotlinScript(
-        displayName = "Coteji configuration script",
-        fileExtension = "coteji.kts",
-        compilationConfiguration = CotejiKtsScriptDefinition::class
+    displayName = "Coteji configuration script",
+    fileExtension = "coteji.kts",
+    compilationConfiguration = CotejiKtsScriptDefinition::class,
+    evaluationConfiguration = CotejiEvaluationConfiguration::class
 )
-abstract class ConfigCotejiScript {
-    fun scriptBody() {
-    }
-}
+abstract class ConfigCotejiScript
 
 object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
-        {
-            defaultImports(
-                    "org.jetbrains.kotlin.script.util.*",
-                    "io.github.coteji.core.*",
-                    "io.github.coteji.config.*"
-            )
+    {
+        defaultImports(
+            "io.github.coteji.core.*",
+            "io.github.coteji.config.*"
+        )
 
-            implicitReceivers(Coteji::class)
+        implicitReceivers(Coteji::class)
 
-            refineConfiguration {
-                onAnnotations(DependsOn::class, Repository::class, Import::class, handler = AnnotationSupportScriptConfigurator())
-            }
+        refineConfiguration {
+            onAnnotations(DependsOn::class, Repository::class, handler = CotejiScriptConfigurator())
+        }
 
-            jvm {
-                dependenciesFromClassloader(wholeClasspath = true)
-            }
+        jvm {
+            dependenciesFromClassloader(wholeClasspath = true)
+        }
 
-            ide {
-                acceptedLocations(ScriptAcceptedLocation.Everywhere)
-            }
-        })
+        ide {
+            acceptedLocations(ScriptAcceptedLocation.Everywhere)
+        }
+    })
+
+object CotejiEvaluationConfiguration : ScriptEvaluationConfiguration(
+    {
+        scriptsInstancesSharing(true)
+        implicitReceivers(Coteji::class)
+        refineConfigurationBeforeEvaluate(::configureConstructorArgsFromMainArgs)
+    }
+)
+
+fun configureConstructorArgsFromMainArgs(context: ScriptEvaluationConfigurationRefinementContext): ResultWithDiagnostics<ScriptEvaluationConfiguration> {
+    val mainArgs = context.evaluationConfiguration[ScriptEvaluationConfiguration.jvm.mainArguments]
+    val res = if (context.evaluationConfiguration[ScriptEvaluationConfiguration.constructorArgs] == null && mainArgs != null) {
+        context.evaluationConfiguration.with {
+            constructorArgs(mainArgs)
+        }
+    } else context.evaluationConfiguration
+    return res.asSuccess()
+}

@@ -1,22 +1,21 @@
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.5.10"
     id("com.vanniktech.maven.publish") version "0.13.0"
     id("org.jetbrains.dokka") version "0.10.1"
 }
 
-version = "0.1.0"
+version = "0.1.1"
 group = "io.github.coteji"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("scripting-jvm"))
-    implementation(kotlin("scripting-jvm-host-embeddable"))
-    implementation(kotlin("script-util"))
-    implementation("com.github.javaparser:javaparser-core:3.14.7")
+    implementation(kotlin("scripting-jvm-host"))
+    implementation(kotlin("scripting-common"))
+    implementation(kotlin("scripting-dependencies"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
     testImplementation("org.assertj:assertj-core:3.18.1")
 }
