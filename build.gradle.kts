@@ -4,7 +4,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.4.32"
 }
 
-version = "0.1.1"
+version = "0.1.2"
 group = "io.github.coteji"
 
 repositories {

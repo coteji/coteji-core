@@ -19,7 +19,7 @@ class Result {
     val testsAdded: MutableList<CotejiTest> = mutableListOf()
     val testsUpdated: MutableList<CotejiTest> = mutableListOf()
     val testsAlreadyUpToDate: MutableList<CotejiTest> = mutableListOf()
-    val testsDeleted: MutableList<CotejiTest> = mutableListOf()
+    val testsDeleted: MutableList<String> = mutableListOf()
     val testsSyncFailed: MutableMap<CotejiTest, String> = mutableMapOf()
 
     fun print() {

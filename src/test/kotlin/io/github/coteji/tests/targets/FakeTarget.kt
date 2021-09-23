@@ -29,7 +29,7 @@ class FakeTarget : TestsTarget {
         val result = Result()
         val idsInSource = tests.filter { it.id != null }.map { it.id }
         if (idsInSource.isNotEmpty()) {
-            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource })
+            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource }.map { it.id!! })
             remoteTests.removeIf { it.id !in idsInSource }
         }
         val idsInTarget = remoteTests.map { it.id }
@@ -89,9 +89,7 @@ class FakeTarget : TestsTarget {
     override fun dryRun(tests: List<CotejiTest>, force: Boolean): Result {
         val result = Result()
         val idsInSource = tests.filter { it.id != null }.map { it.id }
-        if (idsInSource.isNotEmpty()) {
-            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource })
-        }
+        result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource }.map { it.id!! })
         val idsInTarget = remoteTests.map { it.id }
         tests.forEach {
             if (it.id == null || it.id !in idsInTarget) {
