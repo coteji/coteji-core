@@ -22,11 +22,13 @@ class Result {
     val testsDeleted: MutableList<String> = mutableListOf()
     val testsSyncFailed: MutableMap<CotejiTest, String> = mutableMapOf()
 
-    fun print() {
-        println("Tests added: ${testsAdded.size}")
-        println("Tests updated: ${testsUpdated.size}")
-        println("Tests already up to date: ${testsAlreadyUpToDate.size}")
-        println("Tests deleted: ${testsDeleted.size}")
-        println("Tests failed to synchronize: ${testsSyncFailed.size}")
+    override fun toString(): String {
+        return """
+            Tests added: ${testsAdded.size}
+            Tests updated: ${testsUpdated.size}
+            Tests already up to date: ${testsAlreadyUpToDate.size}
+            Tests deleted: ${testsDeleted.size}
+            Tests failed to synchronize: ${testsSyncFailed.size}
+        """.trimIndent()
     }
 }

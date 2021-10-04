@@ -18,10 +18,12 @@ package io.github.coteji.core
 
 import io.github.coteji.exceptions.TestSourceException
 import io.github.coteji.model.CotejiTest
+import mu.KotlinLogging
 
 class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
+    private val logger = KotlinLogging.logger {}
 
     /**
      * Pushes all the tests found in the Source, to the Target.
@@ -43,7 +45,7 @@ class Coteji {
         }
         val result = testsTarget.pushAll(tests, force)
         testsSource.updateIdentifiers(result.testsAdded)
-        result.print()
+        logger.info { result }
     }
 
     /**
@@ -65,7 +67,7 @@ class Coteji {
         }
         val result = testsTarget.pushOnly(tests, force)
         testsSource.updateIdentifiers(result.testsAdded)
-        result.print()
+        logger.info { result }
     }
 
     /**
@@ -76,7 +78,7 @@ class Coteji {
         printSourceTestsStats(tests)
         val result = testsTarget.pushOnly(tests, true)
         testsSource.updateIdentifiers(result.testsAdded)
-        result.print()
+        logger.info { result }
     }
 
     /**
@@ -86,28 +88,27 @@ class Coteji {
         val tests = testsSource.getAll()
         printSourceTestsStats(tests)
         val result = testsTarget.dryRun(tests, force)
-        result.print()
+        logger.info { result }
     }
-
 
     /**
      * Prints out the tests found by searchCriteria.
      */
     fun trySearchCriteria(searchCriteria: String) {
         val tests = testsSource.getTests(searchCriteria)
-        println("Found tests:")
-        tests.forEach { println(it) }
-        println("Total: ${tests.size}")
+        logger.info { "Found tests:" }
+        tests.forEach { logger.info { it } }
+        logger.info { "Total: ${tests.size}" }
     }
 
     private fun printSourceTestsStats(tests: List<CotejiTest>) {
         val testsWithIdCount = tests.filter { it.id != null }.size
-        println("Tests found: ${tests.size}; with ID: ${testsWithIdCount}; without ID: ${tests.size - testsWithIdCount}")
+        logger.info { "Tests found: ${tests.size}; with ID: ${testsWithIdCount}; without ID: ${tests.size - testsWithIdCount}" }
     }
 
     private fun printTestsWithoutId(level: String, tests: List<CotejiTest>) {
-        println("$level: This tests' IDs are missing:")
-        tests.forEach { println(it) }
+        logger.info { "$level: This tests' IDs are missing:" }
+        tests.forEach { logger.info { it } }
     }
 }
 

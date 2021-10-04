@@ -18,9 +18,13 @@ package io.github.coteji.tests
 
 import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.Coteji
+import io.github.coteji.core.IdUpdateMode
+import io.github.coteji.exceptions.TestSourceException
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
+import mu.KotlinLogging
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,6 +39,7 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 
 class CotejiCoreTest {
 
+    private val logger = KotlinLogging.logger {}
     private lateinit var coteji: Coteji
     private val sourceTestWithoutId: CotejiTest = CotejiTest(
         name = "createUser",
@@ -75,7 +80,7 @@ class CotejiCoreTest {
         BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
             implicitReceivers(coteji)
         }).onFailure { result ->
-            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
+            result.reports.subList(0, result.reports.size - 1).forEach { logger.error { it } }
             val error = result.reports.last()
             val location = error.location?.start
             throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
@@ -105,6 +110,36 @@ class CotejiCoreTest {
             targetTestWithIdOne
         )
     }
+
+    @Test
+    fun syncAllIdUpdateModeWarning() {
+        coteji.syncAll(idUpdateMode = IdUpdateMode.WARNING)
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            targetTestWithIdOne
+        )
+        assertThat(File("build/tmp/coteji-test.log"))
+            .content()
+            .containsIgnoringWhitespaces("WARNING: This tests' IDs are missing:")
+    }
+
+    @Test
+    fun syncAllIdUpdateModeError() {
+        try {
+            coteji.syncAll(idUpdateMode = IdUpdateMode.ERROR)
+            Assertions.fail("SyncAll didn't throw an expected exception")
+        } catch (e: TestSourceException) {
+            assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+                targetTestWithIdOne,
+                targetTestWithIdTwo
+            )
+            assertThat(File("build/tmp/coteji-test.log"))
+                .content()
+                .containsIgnoringWhitespaces("ERROR: This tests' IDs are missing:")
+        }
+    }
+
     @Test
     fun syncOnlyForce() {
         coteji.syncOnly("a", true)
@@ -128,6 +163,36 @@ class CotejiCoreTest {
     }
 
     @Test
+    fun syncOnlyIdUpdateModeWarning() {
+        coteji.syncOnly("a", idUpdateMode = IdUpdateMode.WARNING)
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+        assertThat(File("build/tmp/coteji-test.log"))
+            .content()
+            .containsIgnoringWhitespaces("WARNING: This tests' IDs are missing:")
+    }
+
+    @Test
+    fun syncOnlyIdUpdateModeError() {
+        try {
+            coteji.syncOnly("a", idUpdateMode = IdUpdateMode.ERROR)
+            Assertions.fail("SyncOnly didn't throw an expected exception")
+        } catch (e: TestSourceException) {
+            assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+                targetTestWithIdOne,
+                targetTestWithIdTwo
+            )
+            assertThat(File("build/tmp/coteji-test.log"))
+                .content()
+                .containsIgnoringWhitespaces("ERROR: This tests' IDs are missing:")
+        }
+    }
+
+    @Test
     fun pushNew() {
         coteji.pushNew()
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
@@ -144,5 +209,13 @@ class CotejiCoreTest {
             targetTestWithIdOne,
             targetTestWithIdTwo
         )
+    }
+
+    @Test
+    fun trySearchCriteria() {
+        coteji.trySearchCriteria("create")
+        assertThat(File("build/tmp/coteji-test.log"))
+            .content()
+            .containsIgnoringWhitespaces("Found tests:${sourceTestWithoutId}${sourceTestWithIdOne}Total: 2")
     }
 }
