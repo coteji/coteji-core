@@ -19,6 +19,8 @@ package io.github.coteji.tests
 import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.Coteji
 import io.github.coteji.core.IdUpdateMode
+import io.github.coteji.core.source
+import io.github.coteji.core.target
 import io.github.coteji.exceptions.TestSourceException
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.tests.sources.FakeSource
@@ -217,5 +219,11 @@ class CotejiCoreTest {
         assertThat(File("build/tmp/coteji-test.log"))
             .content()
             .containsIgnoringWhitespaces("Found tests:${sourceTestWithoutId}${sourceTestWithIdOne}Total: 2")
+    }
+
+    @Test
+    fun cotejiPropertyGetters() {
+        assertThat(coteji.source).isNotNull
+        assertThat(coteji.target).isNotNull
     }
 }

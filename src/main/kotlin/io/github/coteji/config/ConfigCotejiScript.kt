@@ -19,17 +19,13 @@ package io.github.coteji.config
 import io.github.coteji.core.Coteji
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
-import kotlin.script.experimental.dependencies.DependsOn
-import kotlin.script.experimental.dependencies.Repository
 import kotlin.script.experimental.jvm.dependenciesFromClassloader
 import kotlin.script.experimental.jvm.jvm
-import kotlin.script.experimental.jvm.mainArguments
 
 @KotlinScript(
     displayName = "Coteji configuration script",
     fileExtension = "coteji.kts",
-    compilationConfiguration = CotejiKtsScriptDefinition::class,
-    evaluationConfiguration = CotejiEvaluationConfiguration::class
+    compilationConfiguration = CotejiKtsScriptDefinition::class
 )
 abstract class ConfigCotejiScript
 
@@ -37,14 +33,12 @@ object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
     {
         defaultImports(
             "io.github.coteji.core.*",
-            "io.github.coteji.config.*"
+            "io.github.coteji.config.*",
+            "kotlin.script.experimental.dependencies.DependsOn",
+            "kotlin.script.experimental.dependencies.Repository"
         )
 
         implicitReceivers(Coteji::class)
-
-        refineConfiguration {
-            onAnnotations(DependsOn::class, Repository::class, handler = CotejiScriptConfigurator())
-        }
 
         jvm {
             dependenciesFromClassloader(wholeClasspath = true)
@@ -54,21 +48,3 @@ object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
             acceptedLocations(ScriptAcceptedLocation.Everywhere)
         }
     })
-
-object CotejiEvaluationConfiguration : ScriptEvaluationConfiguration(
-    {
-        scriptsInstancesSharing(true)
-        implicitReceivers(Coteji::class)
-        refineConfigurationBeforeEvaluate(::configureConstructorArgsFromMainArgs)
-    }
-)
-
-fun configureConstructorArgsFromMainArgs(context: ScriptEvaluationConfigurationRefinementContext): ResultWithDiagnostics<ScriptEvaluationConfiguration> {
-    val mainArgs = context.evaluationConfiguration[ScriptEvaluationConfiguration.jvm.mainArguments]
-    val res = if (context.evaluationConfiguration[ScriptEvaluationConfiguration.constructorArgs] == null && mainArgs != null) {
-        context.evaluationConfiguration.with {
-            constructorArgs(mainArgs)
-        }
-    } else context.evaluationConfiguration
-    return res.asSuccess()
-}

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.31"
     id("com.vanniktech.maven.publish") version "0.13.0"
     id("org.jetbrains.dokka") version "1.4.32"
     jacoco
@@ -17,6 +17,7 @@ dependencies {
     implementation(kotlin("scripting-jvm-host"))
     implementation(kotlin("scripting-common"))
     implementation(kotlin("scripting-dependencies"))
+    implementation(kotlin("scripting-dependencies-maven"))
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
     implementation("org.slf4j:slf4j-api:1.7.32")
     implementation("ch.qos.logback:logback-classic:1.2.6")
@@ -40,7 +41,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.6".toBigDecimal()
+                minimum = "0.97".toBigDecimal()
             }
         }
     }
