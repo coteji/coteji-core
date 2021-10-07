@@ -34,7 +34,6 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(false)
     }
-    finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 tasks.jacocoTestCoverageVerification {

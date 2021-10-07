@@ -30,6 +30,7 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.io.File
 import javax.script.ScriptException
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
@@ -39,6 +40,7 @@ import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CotejiCoreTest {
 
     private val logger = KotlinLogging.logger {}
