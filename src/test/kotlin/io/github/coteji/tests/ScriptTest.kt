@@ -18,11 +18,6 @@ package io.github.coteji.tests
 
 import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.Coteji
-import io.github.coteji.core.source
-import io.github.coteji.core.target
-import mu.KotlinLogging
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertThrowsExactly
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -36,8 +31,6 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 
 class ScriptTest {
 
-    private val logger = KotlinLogging.logger {}
-
     @Test
     fun `test DependsOn`() {
         val source = File("src/test/resources/testing.coteji.kts").toScriptSource()
@@ -47,7 +40,7 @@ class ScriptTest {
         BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
             implicitReceivers(coteji)
         }).onFailure { result ->
-            result.reports.subList(0, result.reports.size - 1).forEach { logger.error { it } }
+            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
             val error = result.reports.last()
             val location = error.location?.start
             throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")

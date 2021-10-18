@@ -23,7 +23,6 @@ import io.github.coteji.core.target
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
-import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,7 +39,6 @@ import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromT
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CotejiCoreTest {
 
-    private val logger = KotlinLogging.logger {}
     private lateinit var coteji: Coteji
     private val sourceTestWithoutId: CotejiTest = CotejiTest(
         name = "createUser",
@@ -81,7 +79,7 @@ class CotejiCoreTest {
         BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
             implicitReceivers(coteji)
         }).onFailure { result ->
-            result.reports.subList(0, result.reports.size - 1).forEach { logger.error { it } }
+            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
             val error = result.reports.last()
             val location = error.location?.start
             throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")

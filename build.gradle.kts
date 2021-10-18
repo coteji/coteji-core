@@ -18,9 +18,6 @@ dependencies {
     api(kotlin("scripting-common"))
     api(kotlin("scripting-dependencies"))
     api(kotlin("scripting-dependencies-maven"))
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
-    implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("ch.qos.logback:logback-classic:1.2.6")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("org.assertj:assertj-core:3.21.0")
 }
