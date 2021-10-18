@@ -16,100 +16,80 @@
 
 package io.github.coteji.core
 
-import io.github.coteji.exceptions.TestSourceException
 import io.github.coteji.model.CotejiTest
-import mu.KotlinLogging
+import io.github.coteji.model.SyncResult
 
 class Coteji {
     lateinit var testsSource: TestsSource
     lateinit var testsTarget: TestsTarget
-    private val logger = KotlinLogging.logger {}
 
     /**
      * Pushes all the tests found in the Source, to the Target.
      * Deletes all the tests in the Target that are not present in the Source (match by id).
      * If force is false, tests that are already in the Target (by id) are not updated.
      */
-    fun syncAll(force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
+    fun syncAll(force: Boolean = false, updateIdsInSource: Boolean = true): SyncResult {
         val tests = testsSource.getAll()
-        printSourceTestsStats(tests)
-        val testsWithoutId = tests.filter { it.id == null }
-        if (testsWithoutId.isNotEmpty()) {
-            if (idUpdateMode == IdUpdateMode.ERROR) {
-                printTestsWithoutId("ERROR", testsWithoutId)
-                throw TestSourceException("There were tests without ID. See the list above.")
-            }
-            if (idUpdateMode == IdUpdateMode.WARNING) {
-                printTestsWithoutId("WARNING", testsWithoutId)
-            }
+        val pushResult = testsTarget.pushAll(tests, force)
+        val syncResult = SyncResult()
+        syncResult.testsFoundInSourceCount = tests.size
+        syncResult.testsWithoutId = tests.filter { it.id == null }
+        syncResult.pushResult = pushResult
+        if (updateIdsInSource) {
+            testsSource.updateIdentifiers(pushResult.testsAdded)
         }
-        val result = testsTarget.pushAll(tests, force)
-        testsSource.updateIdentifiers(result.testsAdded)
-        logger.info { result }
+        return syncResult
     }
 
     /**
-     * Pushes selected by searchCriteria tests in the Source, to the Target.
+     * Pushes selected by query tests in the Source, to the Target.
      * If force is false, tests that are already in the Target (by id) are not updated.
      */
-    fun syncOnly(searchCriteria: String, force: Boolean = false, idUpdateMode: IdUpdateMode = IdUpdateMode.UPDATE) {
-        val tests = testsSource.getTests(searchCriteria)
-        printSourceTestsStats(tests)
-        val testsWithoutId = tests.filter { it.id == null }
-        if (testsWithoutId.isNotEmpty()) {
-            if (idUpdateMode == IdUpdateMode.ERROR) {
-                printTestsWithoutId("ERROR", testsWithoutId)
-                throw TestSourceException("There were tests without ID. See the list above.")
-            }
-            if (idUpdateMode == IdUpdateMode.WARNING) {
-                printTestsWithoutId("WARNING", testsWithoutId)
-            }
+    fun syncOnly(query: String, force: Boolean = false, updateIdsInSource: Boolean = true): SyncResult {
+        val tests = testsSource.getTests(query)
+        val pushResult = testsTarget.pushOnly(tests, force)
+        val syncResult = SyncResult()
+        syncResult.testsFoundInSourceCount = tests.size
+        syncResult.testsWithoutId = tests.filter { it.id == null }
+        syncResult.pushResult = pushResult
+        if (updateIdsInSource) {
+            testsSource.updateIdentifiers(pushResult.testsAdded)
         }
-        val result = testsTarget.pushOnly(tests, force)
-        testsSource.updateIdentifiers(result.testsAdded)
-        logger.info { result }
+        return syncResult
     }
 
     /**
      * Finds all tests in the Source without IDs and pushes them to the Target.
      */
-    fun pushNew() {
+    fun pushNew(): SyncResult {
         val tests = testsSource.getAll().filter { it.id == null }
-        printSourceTestsStats(tests)
-        val result = testsTarget.pushOnly(tests, true)
-        testsSource.updateIdentifiers(result.testsAdded)
-        logger.info { result }
+        val pushResult = testsTarget.pushOnly(tests, true)
+        testsSource.updateIdentifiers(pushResult.testsAdded)
+        val syncResult = SyncResult()
+        syncResult.testsFoundInSourceCount = tests.size
+        syncResult.testsWithoutId = tests
+        syncResult.pushResult = pushResult
+        return syncResult
     }
 
     /**
      * Emulates the result of syncAll action without actually doing anything, just logs the results to the console.
      */
-    fun dryRun(force: Boolean = false) {
+    fun dryRun(force: Boolean = false): SyncResult {
         val tests = testsSource.getAll()
-        printSourceTestsStats(tests)
-        val result = testsTarget.dryRun(tests, force)
-        logger.info { result }
+        val pushResult = testsTarget.dryRun(tests, force)
+        val syncResult = SyncResult()
+        syncResult.testsFoundInSourceCount = tests.size
+        syncResult.testsWithoutId = tests.filter { it.id == null }
+        syncResult.pushResult = pushResult
+        return syncResult
     }
 
     /**
-     * Prints out the tests found by searchCriteria.
+     * Get the list of tests from the Source found by query.
      */
-    fun trySearchCriteria(searchCriteria: String) {
-        val tests = testsSource.getTests(searchCriteria)
-        logger.info { "Found tests:" }
-        tests.forEach { logger.info { it } }
-        logger.info { "Total: ${tests.size}" }
-    }
+    fun tryQuery(query: String): List<CotejiTest> = testsSource.getTests(query)
 
-    private fun printSourceTestsStats(tests: List<CotejiTest>) {
-        val testsWithIdCount = tests.filter { it.id != null }.size
-        logger.info { "Tests found: ${tests.size}; with ID: ${testsWithIdCount}; without ID: ${tests.size - testsWithIdCount}" }
-    }
-
-    private fun printTestsWithoutId(level: String, tests: List<CotejiTest>) {
-        logger.info { "$level: This tests' IDs are missing:" }
-        tests.forEach { logger.info { it } }
-    }
 }
 
 var Coteji.source: TestsSource

@@ -23,8 +23,8 @@ class FakeSource() : TestsSource {
         val localTests = mutableListOf<CotejiTest>()
     }
 
-    override fun getTests(searchCriteria: String): List<CotejiTest> {
-        return localTests.filter { searchCriteria in it.name }
+    override fun getTests(query: String): List<CotejiTest> {
+        return localTests.filter { query in it.name }
     }
 
     override fun getAll(): List<CotejiTest> {

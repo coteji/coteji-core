@@ -17,7 +17,7 @@ package io.github.coteji.tests.targets
 
 import io.github.coteji.core.TestsTarget
 import io.github.coteji.model.CotejiTest
-import io.github.coteji.model.Result
+import io.github.coteji.model.PushResult
 import kotlin.random.Random
 
 class FakeTarget : TestsTarget {
@@ -25,13 +25,13 @@ class FakeTarget : TestsTarget {
         val remoteTests = mutableListOf<CotejiTest>()
     }
 
-    override fun pushAll(tests: List<CotejiTest>, force: Boolean): Result {
-        val result = Result()
+    override fun pushAll(tests: List<CotejiTest>, force: Boolean): PushResult {
+        val result = PushResult()
+
         val idsInSource = tests.filter { it.id != null }.map { it.id }
-        if (idsInSource.isNotEmpty()) {
-            result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource }.map { it.id!! })
-            remoteTests.removeIf { it.id !in idsInSource }
-        }
+        result.testsDeleted.addAll(remoteTests.filter { it.id !in idsInSource }.map { it.id!! })
+        remoteTests.removeIf { it.id !in idsInSource }
+
         val idsInTarget = remoteTests.map { it.id }
         var nextId = 100
         tests.forEach {
@@ -54,12 +54,15 @@ class FakeTarget : TestsTarget {
                     result.testsAlreadyUpToDate.add(it)
                 }
             }
+            if (it.id != null && it.id !in idsInTarget) {
+                result.testsWithNonExistingId.add(it)
+            }
         }
         return result
     }
 
-    override fun pushOnly(tests: List<CotejiTest>, force: Boolean): Result {
-        val result = Result()
+    override fun pushOnly(tests: List<CotejiTest>, force: Boolean): PushResult {
+        val result = PushResult()
         val idsInTarget = remoteTests.map { it.id }
         var nextId = 100
         tests.forEach {
@@ -82,14 +85,17 @@ class FakeTarget : TestsTarget {
                     result.testsAlreadyUpToDate.add(it)
                 }
             }
+            if (it.id != null && it.id !in idsInTarget) {
+                result.testsWithNonExistingId.add(it)
+            }
         }
         return result
     }
 
-    override fun dryRun(tests: List<CotejiTest>, force: Boolean): Result {
-        val result = Result()
+    override fun dryRun(tests: List<CotejiTest>, force: Boolean): PushResult {
+        val result = PushResult()
         val idsInSource = tests.filter { it.id != null }.map { it.id }
-        result.testsDeleted.addAll(remoteTests.filter { it.id in idsInSource }.map { it.id!! })
+        result.testsDeleted.addAll(remoteTests.filter { it.id !in idsInSource }.map { it.id!! })
         val idsInTarget = remoteTests.map { it.id }
         tests.forEach {
             if (it.id == null || it.id !in idsInTarget) {
@@ -105,6 +111,9 @@ class FakeTarget : TestsTarget {
                 } else {
                     result.testsAlreadyUpToDate.add(it)
                 }
+            }
+            if (it.id != null && it.id !in idsInTarget) {
+                result.testsWithNonExistingId.add(it)
             }
         }
         return result

@@ -18,15 +18,12 @@ package io.github.coteji.tests
 
 import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.Coteji
-import io.github.coteji.core.IdUpdateMode
 import io.github.coteji.core.source
 import io.github.coteji.core.target
-import io.github.coteji.exceptions.TestSourceException
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
 import mu.KotlinLogging
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -96,135 +93,225 @@ class CotejiCoreTest {
     }
 
     @Test
-    fun syncAllForce() {
-        coteji.syncAll(true)
+    fun `sync all force`() {
+        val result = coteji.syncAll(force = true)
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             sourceTestWithIdOne
         )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(1)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(0)
+        assertThat(result.pushResult.testsDeleted).hasSize(1)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncAllNotForce() {
-        coteji.syncAll()
+    fun `sync all no force`() {
+        val result = coteji.syncAll()
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             targetTestWithIdOne
         )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(1)
+        assertThat(result.pushResult.testsDeleted).hasSize(1)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncAllIdUpdateModeWarning() {
-        coteji.syncAll(idUpdateMode = IdUpdateMode.WARNING)
+    fun `sync all no force no updating IDs`() {
+        val result = coteji.syncAll(force = false, updateIdsInSource = false)
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             targetTestWithIdOne
         )
-        assertThat(File("build/tmp/coteji-test.log"))
-            .content()
-            .containsIgnoringWhitespaces("WARNING: This tests' IDs are missing:")
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId,
+            sourceTestWithIdZero,
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(1)
+        assertThat(result.pushResult.testsDeleted).hasSize(1)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncAllIdUpdateModeError() {
-        try {
-            coteji.syncAll(idUpdateMode = IdUpdateMode.ERROR)
-            Assertions.fail("SyncAll didn't throw an expected exception")
-        } catch (e: TestSourceException) {
-            assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
-                targetTestWithIdOne,
-                targetTestWithIdTwo
-            )
-            assertThat(File("build/tmp/coteji-test.log"))
-                .content()
-                .containsIgnoringWhitespaces("ERROR: This tests' IDs are missing:")
-        }
-    }
-
-    @Test
-    fun syncOnlyForce() {
-        coteji.syncOnly("a", true)
+    fun `sync only force`() {
+        val result = coteji.syncOnly("a", force = true)
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             sourceTestWithIdOne,
             targetTestWithIdTwo
         )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(1)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(0)
+        assertThat(result.pushResult.testsDeleted).hasSize(0)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncOnlyNotForce() {
-        coteji.syncOnly("a")
+    fun `sync only no force`() {
+        val result = coteji.syncOnly("a")
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             targetTestWithIdOne,
             targetTestWithIdTwo
         )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero.copy(id = "101"),
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(1)
+        assertThat(result.pushResult.testsDeleted).hasSize(0)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncOnlyIdUpdateModeWarning() {
-        coteji.syncOnly("a", idUpdateMode = IdUpdateMode.WARNING)
+    fun `sync only no force no updating IDs`() {
+        val result = coteji.syncOnly("a", force = false, updateIdsInSource = false)
         assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
             sourceTestWithoutId.copy(id = "100"),
             sourceTestWithIdZero.copy(id = "101"),
             targetTestWithIdOne,
             targetTestWithIdTwo
         )
-        assertThat(File("build/tmp/coteji-test.log"))
-            .content()
-            .containsIgnoringWhitespaces("WARNING: This tests' IDs are missing:")
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId,
+            sourceTestWithIdZero,
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(1)
+        assertThat(result.pushResult.testsDeleted).hasSize(0)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
     }
 
     @Test
-    fun syncOnlyIdUpdateModeError() {
-        try {
-            coteji.syncOnly("a", idUpdateMode = IdUpdateMode.ERROR)
-            Assertions.fail("SyncOnly didn't throw an expected exception")
-        } catch (e: TestSourceException) {
-            assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
-                targetTestWithIdOne,
-                targetTestWithIdTwo
+    fun `push new`() {
+        val result = coteji.pushNew()
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId.copy(id = "100"),
+            sourceTestWithIdZero,
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(1)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(0)
+        assertThat(result.pushResult.testsAdded).hasSize(1)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(0)
+        assertThat(result.pushResult.testsDeleted).hasSize(0)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
+    }
+
+    @Test
+    fun `dry run force`() {
+        val result = coteji.dryRun(force = true)
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId,
+            sourceTestWithIdZero,
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(1)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(0)
+        assertThat(result.pushResult.testsDeleted).hasSize(1)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
+    }
+
+    @Test
+    fun `dry run no force`() {
+        val result = coteji.dryRun()
+        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
+            targetTestWithIdOne,
+            targetTestWithIdTwo
+        )
+        assertThat(FakeSource.localTests).containsExactlyInAnyOrder(
+            sourceTestWithoutId,
+            sourceTestWithIdZero,
+            sourceTestWithIdOne
+        )
+        assertThat(result.testsFoundInSourceCount).isEqualTo(3)
+        assertThat(result.testsWithoutId).hasSize(1)
+        assertThat(result.pushResult.testsWithNonExistingId).hasSize(1)
+        assertThat(result.pushResult.testsAdded).hasSize(2)
+        assertThat(result.pushResult.testsUpdated).hasSize(0)
+        assertThat(result.pushResult.testsAlreadyUpToDate).hasSize(1)
+        assertThat(result.pushResult.testsDeleted).hasSize(1)
+        assertThat(result.pushResult.testsSyncFailed).hasSize(0)
+    }
+
+    @Test
+    fun `try query`() {
+        val tests = coteji.tryQuery("create")
+        assertThat(tests)
+            .containsExactlyInAnyOrder(
+                sourceTestWithoutId,
+                sourceTestWithIdOne
             )
-            assertThat(File("build/tmp/coteji-test.log"))
-                .content()
-                .containsIgnoringWhitespaces("ERROR: This tests' IDs are missing:")
-        }
     }
 
     @Test
-    fun pushNew() {
-        coteji.pushNew()
-        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
-            sourceTestWithoutId.copy(id = "100"),
-            targetTestWithIdOne,
-            targetTestWithIdTwo
-        )
-    }
-
-    @Test
-    fun dryRun() {
-        coteji.dryRun()
-        assertThat(FakeTarget.remoteTests).containsExactlyInAnyOrder(
-            targetTestWithIdOne,
-            targetTestWithIdTwo
-        )
-    }
-
-    @Test
-    fun trySearchCriteria() {
-        coteji.trySearchCriteria("create")
-        assertThat(File("build/tmp/coteji-test.log"))
-            .content()
-            .containsIgnoringWhitespaces("Found tests:${sourceTestWithoutId}${sourceTestWithIdOne}Total: 2")
-    }
-
-    @Test
-    fun cotejiPropertyGetters() {
+    fun `coteji property getters`() {
         assertThat(coteji.source).isNotNull
         assertThat(coteji.target).isNotNull
     }

@@ -15,7 +15,8 @@
  */
 package io.github.coteji.model
 
-class Result {
+class PushResult {
+    val testsWithNonExistingId: MutableList<CotejiTest> = mutableListOf()
     val testsAdded: MutableList<CotejiTest> = mutableListOf()
     val testsUpdated: MutableList<CotejiTest> = mutableListOf()
     val testsAlreadyUpToDate: MutableList<CotejiTest> = mutableListOf()
@@ -24,6 +25,7 @@ class Result {
 
     override fun toString(): String {
         return """
+            Tests with non-existing ID: ${testsWithNonExistingId.size}
             Tests added: ${testsAdded.size}
             Tests updated: ${testsUpdated.size}
             Tests already up to date: ${testsAlreadyUpToDate.size}

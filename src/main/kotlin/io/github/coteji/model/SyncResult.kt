@@ -13,12 +13,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package io.github.coteji.core
+package io.github.coteji.model
 
-import io.github.coteji.model.CotejiTest
+class SyncResult {
+    var testsFoundInSourceCount: Int = 0
+    lateinit var testsWithoutId: List<CotejiTest>
+    lateinit var pushResult: PushResult
 
-interface TestsSource {
-    fun getTests(query: String): List<CotejiTest>
-    fun getAll(): List<CotejiTest>
-    fun updateIdentifiers(tests: List<CotejiTest>)
+    override fun toString(): String {
+        return """
+Tests found in the Source: ${testsFoundInSourceCount}
+Tests without ID: ${testsWithoutId.size}
+$pushResult
+        """.trimIndent()
+    }
 }

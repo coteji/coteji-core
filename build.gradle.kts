@@ -5,7 +5,7 @@ plugins {
     jacoco
 }
 
-version = "0.1.2"
+version = "0.2.0"
 group = "io.github.coteji"
 
 repositories {
@@ -40,7 +40,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.96".toBigDecimal()
+                minimum = "0.92".toBigDecimal()
             }
         }
     }

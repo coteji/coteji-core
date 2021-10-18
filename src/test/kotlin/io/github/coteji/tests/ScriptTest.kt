@@ -39,7 +39,7 @@ class ScriptTest {
     private val logger = KotlinLogging.logger {}
 
     @Test
-    fun testDependsOn() {
+    fun `test DependsOn`() {
         val source = File("src/test/resources/testing.coteji.kts").toScriptSource()
         val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
         val coteji = Coteji()
