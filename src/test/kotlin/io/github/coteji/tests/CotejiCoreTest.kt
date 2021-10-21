@@ -16,11 +16,11 @@
 
 package io.github.coteji.tests
 
-import io.github.coteji.config.ConfigCotejiScript
 import io.github.coteji.core.Coteji
 import io.github.coteji.core.source
 import io.github.coteji.core.target
 import io.github.coteji.model.CotejiTest
+import io.github.coteji.runner.evaluateScript
 import io.github.coteji.tests.sources.FakeSource
 import io.github.coteji.tests.targets.FakeTarget
 import org.assertj.core.api.Assertions.assertThat
@@ -28,18 +28,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.File
-import javax.script.ScriptException
-import kotlin.script.experimental.api.ScriptEvaluationConfiguration
-import kotlin.script.experimental.api.implicitReceivers
-import kotlin.script.experimental.api.onFailure
-import kotlin.script.experimental.host.toScriptSource
-import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
-import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CotejiCoreTest {
 
-    private lateinit var coteji: Coteji
+    private val coteji: Coteji = evaluateScript(File("src/test/resources/config.coteji.kts"))
     private val sourceTestWithoutId: CotejiTest = CotejiTest(
         name = "createUser",
         content = "some content",
@@ -72,18 +65,6 @@ class CotejiCoreTest {
 
     @BeforeEach
     fun setUp() {
-        val source = File("src/test/resources/config.coteji.kts").toScriptSource()
-        val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
-        coteji = Coteji()
-
-        BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
-            implicitReceivers(coteji)
-        }).onFailure { result ->
-            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
-            val error = result.reports.last()
-            val location = error.location?.start
-            throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
-        }
         FakeSource.localTests.clear()
         FakeSource.localTests.addAll(listOf(sourceTestWithoutId, sourceTestWithIdZero, sourceTestWithIdOne))
         FakeTarget.remoteTests.clear()
