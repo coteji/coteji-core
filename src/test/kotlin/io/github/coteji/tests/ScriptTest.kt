@@ -16,37 +16,31 @@
 
 package io.github.coteji.tests
 
-import io.github.coteji.config.ConfigCotejiScript
-import io.github.coteji.core.Coteji
+import io.github.coteji.runner.evaluateScript
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrowsExactly
 import org.junit.jupiter.api.Test
 import java.io.File
 import javax.script.ScriptException
-import kotlin.script.experimental.api.ScriptEvaluationConfiguration
-import kotlin.script.experimental.api.implicitReceivers
-import kotlin.script.experimental.api.onFailure
-import kotlin.script.experimental.host.toScriptSource
-import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
-import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
 class ScriptTest {
 
     @Test
     fun `test DependsOn`() {
-        val source = File("src/test/resources/testing.coteji.kts").toScriptSource()
-        val configuration = createJvmCompilationConfigurationFromTemplate<ConfigCotejiScript>()
-        val coteji = Coteji()
-
-        BasicJvmScriptingHost().eval(source, configuration, ScriptEvaluationConfiguration {
-            implicitReceivers(coteji)
-        }).onFailure { result ->
-            result.reports.subList(0, result.reports.size - 1).forEach { println(it) }
-            val error = result.reports.last()
-            val location = error.location?.start
-            throw ScriptException("${error.message} (${error.sourcePath}:${location?.line}:${location?.col})")
-        }
+        val coteji = evaluateScript(File("src/test/resources/testing.coteji.kts"))
         assertThrowsExactly(UninitializedPropertyAccessException::class.java) { coteji.testsSource }
         assertThrowsExactly(UninitializedPropertyAccessException::class.java) { coteji.testsTarget }
+    }
+
+    @Test
+    fun `invalid script`() {
+        val errors = mutableListOf<String>()
+        try {
+            evaluateScript(File("src/test/resources/invalid.coteji.kts")) { errors.add(it.message) }
+        } catch (e: ScriptException) {
+            // ignore
+        }
+        assertThat(errors).isNotEmpty
     }
 
 }
