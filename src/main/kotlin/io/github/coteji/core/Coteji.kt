@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package io.github.coteji.core
 
 import io.github.coteji.model.CotejiTest
@@ -92,14 +91,10 @@ class Coteji {
 
 }
 
-var Coteji.source: TestsSource
-    get() = testsSource
-    set(value) {
-        testsSource = value
-    }
+infix fun Coteji.source(init: Coteji.() -> TestsSource) {
+    testsSource = this.init()
+}
 
-var Coteji.target: TestsTarget
-    get() = testsTarget
-    set(value) {
-        testsTarget = value
-    }
+infix fun Coteji.target(init: Coteji.() -> TestsTarget) {
+    testsTarget = this.init()
+}

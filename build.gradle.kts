@@ -3,9 +3,10 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.13.0"
     id("org.jetbrains.dokka") version "1.4.32"
     jacoco
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
 }
 
-version = "0.2.2"
+version = "0.3.0"
 group = "io.github.coteji"
 
 repositories {
@@ -50,4 +51,20 @@ tasks.test {
         events("passed", "skipped", "failed")
     }
     finalizedBy(tasks.jacocoTestReport)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        txt.enabled = true
+        sarif.enabled = true
+    }
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = "1.8"
 }

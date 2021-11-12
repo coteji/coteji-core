@@ -1,5 +1,10 @@
-import io.github.coteji.tests.sources.FakeSource
-import io.github.coteji.tests.targets.FakeTarget
+import io.github.coteji.tests.sources.*
+import io.github.coteji.tests.targets.*
 
-source = FakeSource()
-target = FakeTarget()
+source {
+    fakeSource {}
+}
+
+target {
+    fakeTarget {}
+}

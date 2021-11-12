@@ -15,9 +15,11 @@
  */
 package io.github.coteji.tests.targets
 
+import io.github.coteji.core.Coteji
 import io.github.coteji.core.TestsTarget
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.model.PushResult
+import io.github.coteji.tests.sources.FakeSource
 import kotlin.random.Random
 
 class FakeTarget : TestsTarget {
@@ -118,4 +120,10 @@ class FakeTarget : TestsTarget {
         }
         return result
     }
+}
+
+infix fun Coteji.fakeTarget(init: FakeTarget.() -> Unit): FakeTarget {
+    val fakeTarget = FakeTarget()
+    fakeTarget.init()
+    return fakeTarget
 }

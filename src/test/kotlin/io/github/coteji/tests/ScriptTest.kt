@@ -38,7 +38,7 @@ class ScriptTest {
         try {
             evaluateScript(File("src/test/resources/invalid.coteji.kts")) { errors.add(it.message) }
         } catch (e: ScriptException) {
-            // ignore
+            println("Exception '${e.message}' was intentionally ignored")
         }
         assertThat(errors).isNotEmpty
     }

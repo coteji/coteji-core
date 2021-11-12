@@ -19,9 +19,27 @@ package io.github.coteji.config
 import io.github.coteji.core.Coteji
 import kotlinx.coroutines.runBlocking
 import kotlin.script.experimental.annotations.KotlinScript
-import kotlin.script.experimental.api.*
-import kotlin.script.experimental.dependencies.*
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.api.ScriptAcceptedLocation
+import kotlin.script.experimental.api.ScriptCollectedData
+import kotlin.script.experimental.api.ScriptCompilationConfiguration
+import kotlin.script.experimental.api.ScriptConfigurationRefinementContext
+import kotlin.script.experimental.api.acceptedLocations
+import kotlin.script.experimental.api.asSuccess
+import kotlin.script.experimental.api.collectedAnnotations
+import kotlin.script.experimental.api.defaultImports
+import kotlin.script.experimental.api.dependencies
+import kotlin.script.experimental.api.ide
+import kotlin.script.experimental.api.implicitReceivers
+import kotlin.script.experimental.api.onSuccess
+import kotlin.script.experimental.api.refineConfiguration
+import kotlin.script.experimental.api.with
+import kotlin.script.experimental.dependencies.CompoundDependenciesResolver
+import kotlin.script.experimental.dependencies.DependsOn
+import kotlin.script.experimental.dependencies.FileSystemDependenciesResolver
+import kotlin.script.experimental.dependencies.Repository
 import kotlin.script.experimental.dependencies.maven.MavenDependenciesResolver
+import kotlin.script.experimental.dependencies.resolveFromScriptSourceAnnotations
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
 import kotlin.script.experimental.jvm.jvm
@@ -63,7 +81,8 @@ object CotejiKtsScriptDefinition : ScriptCompilationConfiguration(
 
 private val resolver = CompoundDependenciesResolver(FileSystemDependenciesResolver(), MavenDependenciesResolver())
 
-fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContext): ResultWithDiagnostics<ScriptCompilationConfiguration> {
+fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContext):
+        ResultWithDiagnostics<ScriptCompilationConfiguration> {
     val annotations = context.collectedData?.get(ScriptCollectedData.collectedAnnotations)?.takeIf { it.isNotEmpty() }
         ?: return context.compilationConfiguration.asSuccess()
     return runBlocking {
