@@ -11,9 +11,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build and test
+      - name: Build
         run: |
           chmod +x gradlew
+          ./gradlew classes
+      - name: Static code analysis
+        run: |
+          ./gradlew detekt
+      - name: Tests
+        run: |
           ./gradlew test
       - name: Code coverage check
         run: |

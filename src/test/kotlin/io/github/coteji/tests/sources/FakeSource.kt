@@ -15,10 +15,11 @@
  */
 package io.github.coteji.tests.sources
 
+import io.github.coteji.core.Coteji
 import io.github.coteji.core.TestsSource
 import io.github.coteji.model.CotejiTest
 
-class FakeSource() : TestsSource {
+class FakeSource : TestsSource {
     companion object {
         val localTests = mutableListOf<CotejiTest>()
     }
@@ -37,4 +38,10 @@ class FakeSource() : TestsSource {
         }
     }
 
+}
+
+infix fun Coteji.fakeSource(init: FakeSource.() -> Unit): FakeSource {
+    val fakeSource = FakeSource()
+    fakeSource.init()
+    return fakeSource
 }

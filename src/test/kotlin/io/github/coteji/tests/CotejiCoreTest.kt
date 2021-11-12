@@ -17,8 +17,6 @@
 package io.github.coteji.tests
 
 import io.github.coteji.core.Coteji
-import io.github.coteji.core.source
-import io.github.coteji.core.target
 import io.github.coteji.model.CotejiTest
 import io.github.coteji.runner.evaluateScript
 import io.github.coteji.tests.sources.FakeSource
@@ -291,7 +289,7 @@ class CotejiCoreTest {
 
     @Test
     fun `coteji property getters`() {
-        assertThat(coteji.source).isNotNull
-        assertThat(coteji.target).isNotNull
+        assertThat(coteji.testsSource).isNotNull
+        assertThat(coteji.testsTarget).isNotNull
     }
 }
